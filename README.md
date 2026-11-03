@@ -164,6 +164,7 @@ stress framework (Chishtie, 2026, EGUsphere preprint, no delay / inference / for
 | `stats/fig_basic.py`, `stats/analyze.py` | figures and LaTeX tables |
 | `stats/fault_map.py` | map of two real fault traces (GEM Global Active Faults Database, `cartopy`) |
 | `stats/export_excel.py` | all results in `results.xlsx` |
+| `stats/run_all.py` | runs the whole study (S1, S2, bootstrap null, robustness) in one parallel process pool, resumable |
 | `stats/schematic.tex` | TikZ model schematic |
 | `notebooks/` | Colab (Google Drive) and laptop (Jupyter) notebooks that write these files and run everything |
 | `paper/article.tex`, `paper/tikz_problem.tex` | the article (needs `stats/figs`, `stats/tabs`, `stats/schematic.tex`) |
@@ -183,7 +184,7 @@ python fault_map.py                                                       # need
 cd ../paper && pdflatex article.tex && pdflatex article.tex
 ```
 
-Or open a notebook from `notebooks/` (set `MODE='QUICK'` for a few-minute check, `MODE='FULL'` for the full study, about 1.5 h on 2 CPU cores).
+Fast way, all cores: `python run_all.py --procs 4 --out out`. Or open a notebook from `notebooks/` (`fault_study_colab_github.ipynb` clones this repository in Colab and runs everything in parallel) (set `MODE='QUICK'` for a few-minute check, `MODE='FULL'` for the full study, about 1.5 h on 2 CPU cores).
 Results are written next to the code in `out/` (raw, resumable), `figs/`, `tabs/`, `results.xlsx`.
 
 ## 8. How to cite
