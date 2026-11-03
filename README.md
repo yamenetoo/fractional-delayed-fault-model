@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="Fractional Delayed Fault Model" width="760">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo-light.svg" alt="Fractional Delayed Fault Model" width="640">
+  </picture>
 </p>
 
 # Fractional delayed impulsive model of interacting earthquake faults
@@ -164,7 +167,7 @@ stress framework (Chishtie, 2026, EGUsphere preprint, no delay / inference / for
 | `stats/schematic.tex` | TikZ model schematic |
 | `notebooks/` | Colab (Google Drive) and laptop (Jupyter) notebooks that write these files and run everything |
 | `paper/article.tex`, `paper/tikz_problem.tex` | the article (needs `stats/figs`, `stats/tabs`, `stats/schematic.tex`) |
-| `assets/`, `docs/img/` | logo and figures used in this README |
+| `assets/` (logo, light and dark), `docs/img/` | logo and figures used in this README |
 
 ## 7. Run
 

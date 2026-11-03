@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="200" viewBox="0 0 820 200" role="img" aria-label="Fractional Delayed Fault Model">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b2545"/><stop offset="1" stop-color="#134074"/></linearGradient>
+    <clipPath id="c"><circle cx="100" cy="100" r="92"/></clipPath>
+  </defs>
+  <!-- emblem -->
+  <circle cx="100" cy="100" r="96" fill="none" stroke="#4dabf7" stroke-width="3"/>
+  <g clip-path="url(#c)">
+    <rect x="0" y="0" width="200" height="200" fill="url(#g)"/>
+    <rect x="0" y="122" width="200" height="80" fill="#6b4f3a" opacity="0.55"/>
+    <line x1="0" y1="122" x2="200" y2="122" stroke="#e0c9a6" stroke-width="2"/>
+    <!-- stress with memory: concave rise, sudden drop, threshold -->
+    <line x1="22" y1="44" x2="180" y2="44" stroke="#69db7c" stroke-width="1.6" stroke-dasharray="4 4"/>
+    <path d="M24,92 C30,62 48,48 70,44 L70,92 C76,62 94,48 116,44 L116,92 C122,62 140,48 162,44"
+          fill="none" stroke="#74c0fc" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- two faults -->
+    <polyline points="66,122 60,140 72,154 64,190" fill="none" stroke="#ff8787" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polyline points="136,122 144,141 130,156 140,190" fill="none" stroke="#ffc078" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- delayed pulse -->
+    <path d="M70,114 C88,84 118,84 134,114" fill="none" stroke="#ffd43b" stroke-width="2.6" stroke-dasharray="6 5" stroke-linecap="round"/>
+    <polygon points="134,114 124,108 123,119" fill="#ffd43b"/>
+  </g>
+  <!-- wordmark -->
+  <text x="236" y="86" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="44" font-weight="700" fill="#ffffff" letter-spacing="0.5">Fractional Delayed</text>
+  <text x="236" y="136" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="44" font-weight="300" fill="#ffffff" letter-spacing="0.5">Fault Model</text>
+  <rect x="238" y="150" width="64" height="4" rx="2" fill="#4dabf7"/>
+  <text x="238" y="180" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#adb5bd" letter-spacing="2.2">MEMORY  ·  IMPULSES  ·  DELAY  ·  PROBABILISTIC FORECASTS</text>
+</svg>
