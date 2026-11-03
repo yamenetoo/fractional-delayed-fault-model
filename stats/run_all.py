@@ -131,6 +131,7 @@ if __name__ == "__main__":
     ap.add_argument("--me", type=int, default=0, help="index of this machine in --cores")
     ap.add_argument("--steal", action="store_true", help="after the own share, also compute missing tasks of the others")
     ap.add_argument("--status", action="store_true", help="only print the progress and exit")
+    ap.add_argument("--merge", action="store_true", help="only merge the misspecification parts into misspec.json and exit")
     ap.add_argument("--T", type=float, default=400.0)
     ap.add_argument("--R1", type=int, default=24)
     ap.add_argument("--B1", type=int, default=40)
@@ -145,6 +146,10 @@ if __name__ == "__main__":
     if a.status:
         status(tasks)
         sys.exit(0)
+    if a.merge:
+        print("merged misspec parts:", merge(a.out))
+        status(tasks)
+        sys.exit(0)
     speeds = [float(x) for x in a.cores.split(",")] if a.cores else [float(a.procs or os.cpu_count())]
     procs = a.procs or int(speeds[a.me])
     owner = assign(tasks, speeds)
@@ -156,4 +161,6 @@ if __name__ == "__main__":
         run_pool(rest[::-1], procs, "stolen tasks (others are still missing them)")
     merge(a.out)
     complete = status(tasks)
+    with open(os.path.join(a.out, f"worker_{a.me}_done.txt"), "w") as f:     # marker visible to the other machine
+        f.write(time.strftime("%Y-%m-%d %H:%M:%S") + f"  all tasks finished: {complete}\n")
     print("DONE (this machine); all tasks finished: " + str(complete), flush=True)
