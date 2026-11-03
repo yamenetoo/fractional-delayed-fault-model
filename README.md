@@ -164,7 +164,7 @@ stress framework (Chishtie, 2026, EGUsphere preprint, no delay / inference / for
 | `stats/fig_basic.py`, `stats/analyze.py` | figures and LaTeX tables |
 | `stats/fault_map.py` | map of two real fault traces (GEM Global Active Faults Database, `cartopy`) |
 | `stats/export_excel.py` | all results in `results.xlsx` |
-| `stats/run_all.py` | runs the whole study (S1, S2, bootstrap null, robustness) in one parallel process pool, resumable |
+| `stats/run_all.py` | runs the whole study (S1, S2, bootstrap null, robustness) in a parallel process pool, resumable; can be **shared between several machines** (e.g. desktop + Colab) through a common Drive folder (`--cores 2,8 --me 0/1`) |
 | `stats/schematic.tex` | TikZ model schematic |
 | `notebooks/` | Colab (Google Drive) and laptop (Jupyter) notebooks that write these files and run everything |
 | `paper/article.tex`, `paper/tikz_problem.tex` | the article (needs `stats/figs`, `stats/tabs`, `stats/schematic.tex`) |
