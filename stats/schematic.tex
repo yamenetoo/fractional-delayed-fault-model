@@ -1,0 +1,28 @@
+\begin{tikzpicture}[
+  node distance=1.2cm,
+  fault/.style={draw, rounded corners=2pt, minimum width=3.0cm, minimum height=1.6cm, align=center, fill=blue!6},
+  fault2/.style={draw, rounded corners=2pt, minimum width=3.0cm, minimum height=1.6cm, align=center, fill=orange!10},
+  proc/.style={draw, rounded corners=2pt, minimum width=2.6cm, minimum height=0.8cm, align=center, font=\small, fill=gray!8},
+  arr/.style={-{Latex[length=2mm]}, thick},
+  lab/.style={font=\scriptsize, align=center}
+]
+\node[fault] (F1) {Fault 1\\ stress $x_1(t)$, memory $\alpha$};
+\node[fault2, right=5.2cm of F1] (F2) {Fault 2\\ stress $x_2(t)$, memory $\alpha$};
+% continuous coupling
+\draw[arr, <->, dashed] (F1.east) -- node[above, lab] {continuous coupling} node[below, lab] {strength $\gamma$, no delay} (F2.west);
+% loading
+\node[proc, below=0.9cm of F1] (L1) {loading $v_1$ from $\bar T_1$};
+\node[proc, below=0.9cm of F2] (L2) {loading $v_2$ from $\bar T_2$};
+\draw[arr] (L1) -- (F1);
+\draw[arr] (L2) -- (F2);
+% hazard and rupture
+\node[proc, above=1.0cm of F1] (H1) {hazard $\lambda_1=e^{b(x_1-\theta)}$};
+\node[proc, above=1.0cm of F2] (H2) {hazard $\lambda_2=e^{b(x_2-\theta)}$};
+\draw[arr] (F1) -- (H1);
+\draw[arr] (F2) -- (H2);
+\draw[arr, bend right=40] (H1.west) to node[left, lab] {rupture:\\ $x_1\!\to\!x_1-\Delta$} (F1.west);
+\draw[arr, bend left=40] (H2.east) to node[right, lab] {rupture:\\ $x_2\!\to\!x_2-\Delta$} (F2.east);
+% delayed pulses
+\draw[arr, red!60!black, bend left=18] ([yshift=0.15cm]H1.east) to node[above, lab, red!60!black] {delayed pulse $\gamma C\Delta$ after $\tau=d/c$} ([yshift=0.15cm]H2.west);
+\draw[arr, red!60!black, bend right=18] ([yshift=-0.15cm]H2.west) to ([yshift=-0.15cm]H1.east);
+\end{tikzpicture}

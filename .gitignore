@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+stats/out/
+stats/data/
+stats/figs/
+stats/tabs/
+stats/*.json
+stats/results.xlsx
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.pdf
+.ipynb_checkpoints/
