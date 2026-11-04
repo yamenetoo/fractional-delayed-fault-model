@@ -122,27 +122,26 @@ $$
 p_i(t)=\mathbb{P}\big(\text{fault } i \text{ ruptures in } (t,t+W]\;\big|\;\text{data up to } t\big),\qquad W=5\ \text{yr}.
 $$
 
-## 4. Results so far (pilot run only)
+## 4. Results (full run)
 
-The numbers below come from a **small pilot** (4 replicates per scenario, 8 null datasets for the bootstrap,
-3 replicates for the reference-time study). They show that the method works; they are **not** precise operating characteristics.
+24 replicates for S1 ($\sigma_y=0.3$) and 16 for S2 ($\sigma_y=1.5$), 40/24 null datasets for the bootstrap, 12 datasets for the reference-time study, 100 particles. Valid = maximised log-likelihood within 2 units of (or above) the value at the truth. LaTeX tables are in `docs/results/`.
 
-| Scenario | Valid fits | $\hat\alpha$ | $\hat\gamma$ | $\hat c$ | $\hat b$ |
+| Scenario (truth: 0.7 / 0.08 / 10 / 3) | Valid fits | $\hat\alpha$ | $\hat\gamma$ | $\hat c$ | $\hat b$ |
 |---|---|---|---|---|---|
-| S1, $\sigma_y=0.3$ (truth: 0.7 / 0.08 / 10 / 3) | 3 of 4 | 0.701 | 0.077 | 9.86 | 2.52 |
-| S2, $\sigma_y=1.5$ | 1 of 4 | 0.698 | 0.074 | 9.82 | 2.33 |
+| S1, $\sigma_y=0.3$ | 19 of 24 | 0.700 (rel. RMSE 0.8%) | 0.080 (4.2%) | 10.02 (2.0%) | 2.47 (18%) |
+| S2, $\sigma_y=1.5$ | 9 of 16 | 0.700 (2.0%) | 0.079 (12%) | 9.44 (13%) | 2.81 (14%) |
 
-* **Memory and coupling are detected** with power 100% in both scenarios (LR statistics of the order of $10^2$–$10^3$).
-* **Wrong $\bar T$** lowers the maximised log-likelihood by about 112 (×0.8) and 140 (×1.25) units on average and biases
-  $\hat\alpha$ upwards when $\bar T$ is too large; the *presence* of memory is robust, its *size* is not.
-* **Forecasts (S1):** Brier skill vs. Poisson $+37.6\%$ for the fractional model, $+11.8\%$ for Weibull renewal, $-7.2\%$ without memory.
+* **Memory and coupling are detected** with power 100% in both scenarios (min LR for $\alpha=1$: 1380 in S1, 344 in S2).
+* **Test size:** the naive $\chi^2_1$ reference has size 30% (S1) and 8% (S2) because $\alpha=1$ is on the boundary; bootstrap 95% points are 6.94 (S1) and 2.98 (S2). $\hat\alpha$ was never below 0.98 under $H_0$.
+* **Wrong $\bar T$** ($\times0.8$, $\times1.25$, 12 datasets) lowers the maximised log-likelihood by 134 and 91 units on average and biases $\hat\alpha$ (0.69 / 0.77), $\hat\gamma$ (0.055 / 0.067) and $\hat b$ (2.3 / 2.2); the *presence* of memory is robust, its *size* is not.
+* **Forecasts (5-year windows), Brier skill vs. Poisson:** fractional $+33\%$ (S1) / $+35\%$ (S2); Weibull renewal $+10.5\%$; no memory $-38\%$ / $-168\%$. AUC 0.94 vs 0.83 (Weibull).
 
 **Known limitations.**
-1. Under noisy observations (S2) the optimiser often stalls (3 of 4 fits invalid) – an optimisation problem, not evidence about the data.
+1. The optimiser stalls in some fits (5/24 in S1, 7/16 in S2); summaries use valid fits only, so they are optimistic, especially in S2.
 2. The forecast comparison is **not information-matched**: the fractional model uses the stress readings, the baselines only the catalogue.
-3. Stress is observed directly (with noise) in the simulations – an optimistic assumption; real data give only proxies.
-4. The bootstrap critical values use only 8 null datasets and are not reliable yet.
-5. The real-fault map is only an illustration of geometry; the pair currently chosen from the GEM database is not a proper pair of neighbouring faults.
+3. Stress is observed directly (with noise) in the simulations, an optimistic assumption; real data give only proxies.
+4. Bootstrap critical values rest on 40/24 draws; the coupling test is not bootstrap-calibrated ($c$ is unidentified under $\gamma=0$).
+5. The real-fault map (EMME / SHARE, about 516 km apart) is only an illustration of geometry, not a pair of interacting neighbours.
 6. No head-to-head comparison with ETAS or the linked stress-release model has been run.
 
 ## 5. Related work
