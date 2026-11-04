@@ -47,6 +47,22 @@ We propose a stochastic model of two interacting earthquake faults in which tect
 \section{Introduction}
 Earthquake recurrence is classically described by renewal models or by point processes of the Hawkes/ETAS family \citep{Hawkes1971,Ogata1988}. Two physical features are awkward there: loading is not memoryless (the crust is viscoelastic), and faults interact through stress transfer that travels at finite speed, so the effect of one rupture on its neighbour is \emph{delayed}. Fractional calculus encodes memory compactly \citep{Podlubny1999,Diethelm2010}. We combine fractional memory, impulsive ruptures and delayed coupling in one model, and ask the statistical questions such a model must answer: \emph{can its parameters be recovered, can memory and interaction be detected, and do its forecasts beat simple benchmarks out of sample?}
 
+
+\paragraph{Research questions.}
+\begin{description}\setlength\itemsep{0pt}
+\item[RQ1] Can the parameters $(\alpha,\gamma,c,b)$ be recovered from a 400-year record, with accurate and with noisy stress readings?
+\item[RQ2] Can memory ($\alpha<1$) be detected, and is the usual $\chi^2$ calibration of the likelihood-ratio test valid at the boundary $\alpha=1$?
+\item[RQ3] Can interaction ($\gamma>0$) be detected?
+\item[RQ4] Are the conclusions robust to a wrong reference recurrence time $\Tb$?
+\item[RQ5] Do the fitted model's window forecasts beat catalogue-based benchmarks out of sample?
+\end{description}
+Figure~\ref{fig:method} shows how the study is organised and where each question is answered (Section~\ref{sec:answers}).
+
+\begin{figure}[t]
+\centering\resizebox{\textwidth}{!}{\figMethod}
+\caption{Methodology: model, simulation, estimation and validation steps, the five research questions (RQ1--RQ5) and where they are answered.}\label{fig:method}
+\end{figure}
+
 \begin{figure}[t]
 \centering
 \begin{minipage}{0.53\textwidth}\centering\resizebox{\textwidth}{!}{\figProblem}\end{minipage}\hfill
@@ -192,6 +208,15 @@ We use $R=24$ (S1) and $16$ (S2) replicates, $B_0=40/24$ null datasets and $12$ 
 \centering\maybefig{forecast_eval.pdf}{0.9}{}
 \caption{Reliability diagram (left), ROC curves (centre) and Brier skill against Poisson (right; mean $\pm$ SE).}\label{fig:forecast}
 \end{figure}
+
+\section{Answers to the research questions}\label{sec:answers}
+\begin{description}\setlength\itemsep{2pt}
+\item[RQ1 --- recovery.] \emph{Yes, with limits.} With accurate readings (S1) $\alpha$, $\gamma$ and $c$ are recovered with relative RMSE $0.8\%$, $4.2\%$ and $2.0\%$; $b$ is biased downwards ($2.47$ for a true $3$, relative RMSE $18\%$). With noisy readings (S2) $\alpha$ is still recovered ($2.0\%$), $\gamma$ and $b$ less well ($12\%$, $14\%$), and the delay speed $c$ worst ($13\%$). These figures are for valid fits only ($19/24$ and $9/16$ of the replicates), so they are optimistic.
+\item[RQ2 --- memory.] \emph{Yes.} The LR statistic is far beyond any critical value (minimum $1380$ in S1, $344$ in S2), so the power is $100\%$ at $\alpha=0.7$. The $\chi^2_1$ calibration is \emph{not} valid: its size is $30\%$ (S1) and $8\%$ (S2); the parametric-bootstrap $95\%$ points are $6.94$ and $2.98$, and $\hat\alpha$ lies at the boundary under $H_0$ ($0.992$ on average).
+\item[RQ3 --- interaction.] \emph{Suggestively yes.} The coupling statistic also gives power $100\%$, but $\gamma=0$ is a boundary and $c$ is unidentified under $H_0$, and this test is not bootstrap-calibrated, so the result shows only that a coupling of size $0.08$ is far from the null, not that the test has the nominal size.
+\item[RQ4 --- robustness.] \emph{Partly.} A wrong $\Tb$ ($\times0.8$ or $\times1.25$) costs $134$ and $91$ log-likelihood units on average, so it is detectable; the \emph{presence} of memory survives, but $\hat\alpha$ ($0.69$, $0.77$), $\hat\gamma$ ($0.055$, $0.067$) and $\hat b$ ($2.3$, $2.2$) are shifted, so the \emph{size} of memory and coupling is not robust.
+\item[RQ5 --- forecasts.] \emph{Yes against catalogue-based benchmarks, not yet at equal information.} The fitted model has Brier skill $+33\%$ (S1) and $+35\%$ (S2) over Poisson, against $+10.5\%$ for Weibull renewal, and AUC $0.94$ against $0.83$; with memory switched off it is worse than Poisson ($-38\%$, $-168\%$). Since the fractional model reads the stress while the benchmarks do not, this measures the value of observing stress together with the model structure.
+\end{description}
 
 \section{Discussion and limitations}
 \begin{itemize}\setlength\itemsep{1pt}
