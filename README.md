@@ -171,20 +171,25 @@ stress framework (Chishtie, 2026, EGUsphere preprint, no delay / inference / for
 
 ## 7. Run
 
+Fastest: open the Colab notebook (button below), set `MODE = 'FULL'` and run the single cell; everything is saved in `MyDrive/fault_study`.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yamenetoo/fractional-delayed-fault-model/blob/main/fault_study_colab.ipynb)
+
+Locally (all tasks in parallel, resumable, optionally shared between machines with `--cores 2,8 --me K`):
+
 ```bash
 pip install -r requirements.txt
 cd stats
-python fig_basic.py
-python stats_study.py --sigy 0.3 --R 24 --B0 40 --npart 100 --out out    # scenario S1 (resumable)
-python stats_study.py --sigy 1.5 --R 16 --B0 24 --npart 100 --out out    # scenario S2
-python misspec.py 12
-python analyze.py && python export_excel.py
-python fault_map.py                                                       # needs internet + cartopy
+python run_all.py --procs 8 --R1 24 --B1 40 --G1 40 --R2 16 --B2 24 --G2 24 --M 12 --out out
+python fault_map.py && python fig_basic.py && python analyze.py && python export_excel.py
 cd ../paper && pdflatex article.tex && pdflatex article.tex
 ```
 
-Fast way, all cores: `python run_all.py --procs 4 --out out`. Or open `notebooks/colab_run_and_save_to_drive.ipynb` in Colab ([open](https://colab.research.google.com/github/yamenetoo/fractional-delayed-fault-model/blob/main/notebooks/colab_run_and_save_to_drive.ipynb); works directly only if the repository is public) (set `MODE='QUICK'` for a few-minute check, `MODE='FULL'` for the full study, about 1.5 h on 2 CPU cores).
-Results are written next to the code in `out/` (raw, resumable), `figs/`, `tabs/`, `results.xlsx`.
+**Version v2 of the study** (files named `*_v2_*`) fixes the weaknesses of the first run:
+a multi-start + polishing optimiser with a convergence check that does not use the truth (the full model must not
+fit worse than its nested sub-models), all replicates reported, an information-matched benchmark (logistic regression
+on the same stress readings), a parametric-bootstrap calibration of the coupling test (`gnull` task), and an automatic
+choice of two *neighbouring* real fault traces (about 30 km apart) for the map.
 
 ## 8. How to cite
 

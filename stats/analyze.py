@@ -23,7 +23,7 @@ S = {}
 
 def load(kind, sy):
     rows = []
-    for f in sorted(glob.glob(os.path.join(OUT, f"{kind}_T400_sy{sy}_*.json"))):
+    for f in sorted(glob.glob(os.path.join(OUT, f"{kind}_v2_T400_sy{sy}_*.json"))):
         rows.append(json.load(open(f)))
     return rows
 
@@ -47,9 +47,11 @@ def logscore(y, p, eps=1e-3):
 
 
 have = {}
+gnull = {}
 for sy, _ in SC:
     have[sy] = (load("alt", sy), load("null", sy))
-    print(sy, "alt", len(have[sy][0]), "null", len(have[sy][1]))
+    gnull[sy] = load("gnull", sy)
+    print(sy, "alt", len(have[sy][0]), "null", len(have[sy][1]), "gnull", len(gnull[sy]))
 
 # ------------------------------------------------------------------ recovery table + figure
 fig, axs = plt.subplots(1, 4, figsize=(7.4, 2.8))
@@ -58,8 +60,16 @@ tex = [r"\begin{tabular}{llrrrrrr}", r"\toprule",
        r"$\sigma_y$ & Parameter & Truth & Mean & Bias & SD & RMSE & Rel.\ RMSE (\%)\\", r"\midrule"]
 for k, (sy, lab) in enumerate(SC):
     alt, _ = have[sy]
-    ok = [r for r in alt if r["valid"]]
-    S[f"n_alt_{sy}"] = len(alt); S[f"n_valid_{sy}"] = len(ok)
+    ok = alt                                          # ALL replicates (no exclusion)
+    S[f"n_alt_{sy}"] = len(alt)
+    S[f"n_nested_ok_{sy}"] = sum(bool(r.get("nested_ok", True)) for r in alt)
+    S[f"n_valid_{sy}"] = sum(bool(r["valid"]) for r in alt)            # oracle diagnostic: ll_full >= ll(truth)-2
+    S[f"n_stalled_{sy}"] = len(alt) - S[f"n_valid_{sy}"]
+    okv = [r for r in alt if r["valid"]]                                # sensitivity: oracle-valid replicates only
+    for nm in ["alpha", "gamma", "c", "b"]:
+        ev = np.array([r["full"][nm] for r in okv])
+        if len(ev):
+            S[f"validonly_{nm}_{sy}"] = dict(mean=float(ev.mean()), rmse=float(np.sqrt(np.mean((ev - TRUE[nm]) ** 2))), n=len(ev))
     for j, nm in enumerate(names):
         est = np.array([r["full"][nm] for r in ok])
         if len(est) == 0:
@@ -111,13 +121,14 @@ plt.close(fig)
 
 # ------------------------------------------------------------------ LR tests for memory and interaction
 fig, axs = plt.subplots(1, 2, figsize=(7.2, 2.9))
-tex = [r"\begin{tabular}{lrrrrrr}", r"\toprule",
-       r"$\sigma_y$ & $B_0$ & $\hat\alpha<0.98$ under $H_0$ (\%) & Type I, $\chi$-ref.\ (\%) & Crit.\ (95\,\%, boot.) & Power, memory (\%) & Power, coupling (\%)\\",
+tex = [r"\begin{tabular}{lrrrrrrrr}", r"\toprule",
+       r"$\sigma_y$ & $B_0$ & Type I, $\chi$-ref.\ (\%) & Crit.\ (95\,\%, boot.) & Power, memory (\%) & $G_0$ & Type I coupling, $\chi$-ref.\ (\%) & Crit.\ coupling (boot.) & Power, coupling (\%)\\",
        r"\midrule"]
 for k, (sy, lab) in enumerate(SC):
     alt, null = have[sy]
     lr0 = np.array([r["lr"] for r in null])
-    ok = [r for r in alt if r["valid"]]
+    ok = alt                                          # all replicates
+    lrg0 = np.array([r["lr"] for r in gnull[sy]])
     lra = np.array([max(2 * (r["ll_full"] - r["ll_alpha1"]), 0) for r in ok])
     lrg = np.array([max(2 * (r["ll_full"] - r["ll_gamma0"]), 0) for r in ok])
     if len(lr0) == 0 or len(lra) == 0:
@@ -126,11 +137,15 @@ for k, (sy, lab) in enumerate(SC):
     crit_boot = float(np.quantile(lr0, 0.95))
     S[f"lr_{sy}"] = dict(B0=len(lr0), type1=float(np.mean(lr0 > crit_chi)), crit=crit_boot,
                          power=float(np.mean(lra > max(crit_boot, 1e-9))), power_g=float(np.mean(lrg > crit_chi)),
+                         G0=len(lrg0), type1_g=float(np.mean(lrg0 > crit_chi)) if len(lrg0) else float("nan"),
+                         crit_g=float(np.quantile(lrg0, 0.95)) if len(lrg0) else float("nan"),
+                         power_g_boot=float(np.mean(lrg > np.quantile(lrg0, 0.95))) if len(lrg0) else float("nan"),
                          alpha_null_mean=float(np.mean([r["full"]["alpha"] for r in null])),
                          frac_a98=float(np.mean([r["full"]["alpha"] < 0.98 for r in null])),
                          lra_min=float(lra.min()), lra_med=float(np.median(lra)))
-    tex.append(f"{lab} & {len(lr0)} & {100*S[f'lr_{sy}']['frac_a98']:.0f} & {100*S[f'lr_{sy}']['type1']:.1f} & {crit_boot:.2f} & "
-               f"{100*S[f'lr_{sy}']['power']:.0f} & {100*S[f'lr_{sy}']['power_g']:.0f}\\\\")
+    q = S[f"lr_{sy}"]
+    tex.append(f"{lab} & {len(lr0)} & {100*q['type1']:.1f} & {crit_boot:.2f} & {100*q['power']:.0f} & {q['G0']} & "
+               f"{100*q['type1_g']:.1f} & {q['crit_g']:.2f} & {100*q['power_g_boot']:.0f}\\\\")
     x = np.sort(lr0); y = np.arange(1, len(x) + 1) / len(x)
     axs[0].step(np.r_[0, x], np.r_[0, y], where="post", color=[C1, C2][k], label=f"null, {lab}")
     axs[1].plot(np.sort(lra), np.arange(1, len(lra) + 1) / len(lra), "-", color=[C1, C2][k], label=f"true $\\alpha=0.7$, {lab}")
@@ -150,14 +165,15 @@ plt.close(fig)
 
 # ------------------------------------------------------------------ forecast evaluation
 methods = [("p_full", "fractional (fitted)", C1), ("p_alpha1", "no memory ($\\alpha=1$)", C2),
-           ("p_weib", "Weibull renewal", CG), ("p_pois", "Poisson", CK)]
+           ("p_logit", "stress-logit (same information)", CP), ("p_weib", "Weibull renewal", CG),
+           ("p_pois", "Poisson", CK)]
 fig, axs = plt.subplots(1, 3, figsize=(7.6, 2.9))
 tex = [r"\begin{tabular}{llrrrr}", r"\toprule",
        r"$\sigma_y$ & Method & Brier & Log score & AUC & Brier skill vs.\ Poisson (\%)\\", r"\midrule"]
 bss_data = {}
 for k, (sy, lab) in enumerate(SC):
-    fcs = [np.load(f) for f in sorted(glob.glob(os.path.join(OUT, f"alt_T400_sy{sy}_*.npz")))]
-    meta = {json.load(open(f))["rep"]: json.load(open(f)) for f in glob.glob(os.path.join(OUT, f"alt_T400_sy{sy}_*.json"))}
+    fcs = [np.load(f) for f in sorted(glob.glob(os.path.join(OUT, f"alt_v2_T400_sy{sy}_*.npz")))]
+    meta = {json.load(open(f))["rep"]: json.load(open(f)) for f in glob.glob(os.path.join(OUT, f"alt_v2_T400_sy{sy}_*.json"))}
     if not fcs:
         continue
     pooled = {m: [] for m, _, _ in methods}; Y = []
@@ -202,10 +218,10 @@ axs[0].set_xlabel("forecast probability"); axs[0].set_ylabel("observed frequency
 axs[0].set_title(r"Reliability ($\sigma_y=0.3$)"); axs[0].legend(fontsize=6.5)
 axs[1].plot([0, 1], [0, 1], color="k", lw=0.6, ls=":")
 axs[1].set_xlabel("false-positive rate"); axs[1].set_ylabel("true-positive rate"); axs[1].set_title("ROC")
-width = 0.2
-for mi, (m, nm, col) in enumerate(methods[:3]):
+width = 0.18
+for mi, (m, nm, col) in enumerate(methods[:4]):
     vals = [bss_data.get((sy, m), (np.nan, 0)) for sy, _ in SC]
-    axs[2].bar(np.arange(2) + (mi - 1) * width, [v[0] for v in vals], width, yerr=[v[1] for v in vals], color=col, label=nm,
+    axs[2].bar(np.arange(2) + (mi - 1.5) * width, [v[0] for v in vals], width, yerr=[v[1] for v in vals], color=col, label=nm,
                capsize=2)
 axs[2].set_xticks([0, 1]); axs[2].set_xticklabels([r"$\sigma_y=0.3$", r"$\sigma_y=1.5$"])
 axs[2].axhline(0, color="k", lw=0.6)
@@ -215,7 +231,7 @@ fig.savefig(os.path.join(FIG, "forecast_eval.pdf"))
 plt.close(fig)
 
 # ------------------------------------------------------------------ misspecified reference time (needs misspec.py)
-mf = os.path.join(OUT, "misspec.json")
+mf = os.path.join(OUT, "misspec_v2.json")
 if os.path.exists(mf):
     ms = json.load(open(mf))
     base = {r["rep"]: r for r in have["0.3"][0]}

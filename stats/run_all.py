@@ -4,6 +4,7 @@
 Tasks (all resumable: a finished task is skipped):
   alt  : replicate under the alternative, scenario S1 (sigma_y=0.3) and S2 (sigma_y=1.5)
   null : replicate under H0 (alpha=1) for the parametric-bootstrap null law of the LR statistic
+  gnull: replicate under H0 (gamma=0) for the parametric-bootstrap null law of the coupling LR statistic
   mis  : refit of S1 replicates with a wrong reference recurrence time (x0.8, x1.25)
 
 Single machine:   python run_all.py --procs 4 --out out
@@ -31,18 +32,18 @@ import misspec as ms      # noqa: E402
 # ----------------------------------------------------------------------------------------------------- tasks
 def outfile(task, T=400.0):
     kind = task[0]
-    if kind in ("alt", "null"):
+    if kind in ("alt", "null", "gnull"):
         _, sy, s, T, npart, out = task
-        return os.path.join(out, f"{kind}_T{int(T)}_sy{sy}_{s:03d}.json")
+        return os.path.join(out, f"{kind}_{ss.VERSION}_T{int(T)}_sy{sy}_{s:03d}.json")
     _, s, scale, out = task
-    return os.path.join(out, f"misspec_part_{s:03d}_{scale}.json")
+    return os.path.join(out, f"misspec_{ss.VERSION}_part_{s:03d}_{scale}.json")
 
 
 def cost(task):
     """rough relative duration (used only to balance the work between workers)"""
     if task[0] == "alt":
-        return 4.0 if task[2] < 6 else 2.2      # replicates 0-5 also compute the profile likelihood
-    return 1.0 if task[0] == "null" else 1.2
+        return 8.0 if task[2] < 6 else 4.5      # replicates 0-5 also compute the profile likelihood
+    return {"null": 2.0, "gnull": 2.0}.get(task[0], 2.5)
 
 
 def build(a):
@@ -60,6 +61,11 @@ def build(a):
             tasks.append(("null", 0.3, s, a.T, a.npart, a.out))
         if s < a.B2:
             tasks.append(("null", 1.5, s, a.T, a.npart, a.out))
+    for s in range(max(a.G1, a.G2)):
+        if s < a.G1:
+            tasks.append(("gnull", 0.3, s, a.T, a.npart, a.out))
+        if s < a.G2:
+            tasks.append(("gnull", 1.5, s, a.T, a.npart, a.out))
     return tasks
 
 
@@ -76,11 +82,11 @@ def assign(tasks, speeds):
 
 def work(task):
     kind = task[0]
-    if kind in ("alt", "null"):
+    if kind in ("alt", "null", "gnull"):
         _, sy, s, T, npart, out = task
         ss.rs.FIXED["sigy"] = sy
         ss.TAG = str(sy)
-        return (ss.run_alt if kind == "alt" else ss.run_null)((s, T, npart, out))
+        return {"alt": ss.run_alt, "null": ss.run_null, "gnull": ss.run_gnull}[kind]((s, T, npart, out))
     _, s, scale, out = task
     fn = outfile(task)
     if os.path.exists(fn):
@@ -108,9 +114,9 @@ def status(tasks):
 
 
 def merge(out):
-    parts = [json.load(open(os.path.join(out, f))) for f in sorted(os.listdir(out)) if f.startswith("misspec_part_")]
+    parts = [json.load(open(os.path.join(out, f))) for f in sorted(os.listdir(out)) if f.startswith(f"misspec_{ss.VERSION}_part_")]
     if parts:
-        json.dump(parts, open(os.path.join(out, "misspec.json"), "w"), default=float)
+        json.dump(parts, open(os.path.join(out, f"misspec_{ss.VERSION}.json"), "w"), default=float)
     return len(parts)
 
 
@@ -137,6 +143,8 @@ if __name__ == "__main__":
     ap.add_argument("--B1", type=int, default=40)
     ap.add_argument("--R2", type=int, default=16)
     ap.add_argument("--B2", type=int, default=24)
+    ap.add_argument("--G1", type=int, default=40, help="coupling-test null datasets, S1")
+    ap.add_argument("--G2", type=int, default=24, help="coupling-test null datasets, S2")
     ap.add_argument("--M", type=int, default=12)
     ap.add_argument("--npart", type=int, default=100)
     ap.add_argument("--out", default=os.path.join(HERE, "out"))
