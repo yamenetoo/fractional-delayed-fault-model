@@ -70,7 +70,7 @@ Figure~\ref{fig:method} shows how the study is organised and where each question
 \caption{Left: the problem---two faults a distance $d$ apart exchange stress; from past ruptures and noisy stress readings we want a probability of rupture in a future window. Right: two real neighbouring fault traces (GEM database \citep{StyronPagani2020}, about $30$\,km apart, chosen automatically) illustrating the geometry; the study itself uses synthetic data and spatial proximity alone does not establish mechanical interaction.}\label{fig:problem}
 \end{figure}
 
-\section{Related work}\label{sec:related}
+\subsection{Related work}\label{sec:related}
 \paragraph{Renewal and stress-release models.}
 Classical recurrence models treat the inter-event time of a fault as an i.i.d.\ draw from a Weibull, lognormal or Brownian-passage-time law \citep{Matthews2002}; they have no mechanism for interaction and use elapsed time only. The \emph{stress release model} of \citet{VereJones1978} (see also \citealp{ZhengVereJones1991}) is closer in spirit: stress increases linearly, earthquakes occur at a stress-dependent hazard $\lambda=\exp(a+b\,x)$ and release stress. The \emph{linked} stress-release model couples several regions through stress transfer \citep{LuVereJones2000,Bebbington2003} and has a well-developed likelihood theory. Our hazard \eqref{eq:hazard} has the same exponential-in-stress form, so the present model can be seen as a stress-release model in which (i) loading is not linear but has fractional memory and saturation, and (ii) coupling is split into an instantaneous part and a \emph{delayed} pulse. In the linked model coupling is instantaneous and memoryless, and stress is a deterministic function of the catalogue (no latent state, no particle filter).
 
@@ -103,7 +103,8 @@ Fractional $N$-body \citep{Chishtie2026} & fractional & yes & -- & deterministic
 \caption{Comparison with related approaches (entries reflect the cited sources as we understood them).}\label{tab:related}
 \end{table}
 
-\section{The model}
+\section{Model and inference}
+\subsection{The model}
 Let $x_i(t)$ be the stress on fault $i\in\{1,2\}$. Between ruptures
 \begin{equation}\label{eq:volterra}
 x_i(t)=x_i(0)+\frac{1}{\Gamma(\alpha)}\int_0^t (t-s)^{\alpha-1}F_i(x(s))\dd s+J_i(t),\qquad F_i=v_i-\beta x_i+\gamma(x_j-x_i)+\sigma_x\xi_i ,
@@ -141,7 +142,7 @@ so $v_i$ moves with $\alpha$ and is not free. Stress is observed yearly with err
 \caption{Left: calibrated stress build-up of an isolated fault for three memory orders, all reaching $\theta$ at $\Tb=40$ years ($v$ changes with $\alpha$). Right: a simulated 400-year dataset (true $\alpha=0.7$, $\gamma=0.08$, $\tau=3$ yr, $b=3$); lines: latent stress, dots: yearly noisy observations, triangles: ruptures, dashed: threshold.}\label{fig:loading}
 \end{figure}
 
-\section{Inference}
+\subsection{Inference}
 The fractional kernel is completely monotone, so $t^{\alpha-1}/\Gamma(\alpha)\approx\sum_{k=1}^{K}w_ke^{-s_kt}$ ($K=21$ plus a tail term), which makes the system Markov and the cost linear in time. The likelihood of the yearly readings and rupture times is estimated by a bootstrap particle filter \citep{Gordon1993,DoucetJohansen2011} ($P=100$ particles, systematic resampling when ESS $<P/2$, common random numbers across parameter values). $(\alpha,\gamma,c,b)$ is estimated on the scale $(\mathrm{logit}\,\alpha,\log\gamma,\log c,\log b)$ by Nelder--Mead \citep{NelderMead1965} from several starts. Fixed: $\beta=0.05$, $\theta=10$, $\rho=0.2$, $\Tb=(40,45)$, $d=30$, $C=3$, $\sigma_x=0.1$, $\lambda_0=1$. The delay is identified only to the time step $h=0.25$ because pulses are applied at grid points.
 
 \begin{figure}[t]
@@ -169,7 +170,8 @@ The null $\alpha=1$ is on the boundary of $(0,1]$. The likelihood-ratio statisti
 \paragraph{Profile likelihood.}
 For the first replicates the profile log-likelihood of $\alpha$ is computed on a grid $\{0.40,0.45,\dots,1.0\}$ by maximising over $(\gamma,c,b)$ at each $\alpha$. The profile deviance $2\{\hat\ell-\ell_p(\alpha)\}$ is plotted; since the Monte Carlo noise of the particle filter (standard deviation of order $1$--$2$ log-likelihood units) is of the same order as the usual deviance thresholds, profile-based confidence intervals and their coverage are \emph{not} claimed.
 
-\section{Results}\label{sec:results}
+\section{Results and answers to the research questions}\label{sec:results}
+\subsection{Results}
 We use $R=24$ (S1) and $16$ (S2) replicates, $B_0=40/24$ null datasets and $12$ datasets for the robustness study.
 
 \paragraph{Recovery.} Of the replicates, $19/24$ (S1) and $9/16$ (S2) are valid; the others are optimiser failures (below the log-likelihood of the truth), not information failures. Among valid ones (Table~\ref{tab:recovery}) $\alpha$, $\gamma$ and $c$ are essentially unbiased in S1 (relative RMSE $0.8\%$, $4.2\%$, $2.0\%$) while $b$ is biased downwards ($2.47$ for a true $3$). Under noise (S2) $\alpha$ is still recovered (relative RMSE $2.0\%$), but $c$, hence the delay, is the least well identified ($13\%$).
@@ -209,7 +211,7 @@ We use $R=24$ (S1) and $16$ (S2) replicates, $B_0=40/24$ null datasets and $12$ 
 \caption{Reliability diagram (left), ROC curves (centre) and Brier skill against Poisson (right; mean $\pm$ SE).}\label{fig:forecast}
 \end{figure}
 
-\section{Answers to the research questions}\label{sec:answers}
+\subsection{Answers to the research questions}\label{sec:answers}
 \begin{description}\setlength\itemsep{2pt}
 \item[RQ1 --- recovery.] \emph{Yes, with limits.} With accurate readings (S1) $\alpha$, $\gamma$ and $c$ are recovered with relative RMSE $0.8\%$, $4.2\%$ and $2.0\%$; $b$ is biased downwards ($2.47$ for a true $3$, relative RMSE $18\%$). With noisy readings (S2) $\alpha$ is still recovered ($2.0\%$), $\gamma$ and $b$ less well ($12\%$, $14\%$), and the delay speed $c$ worst ($13\%$). These figures are for valid fits only ($19/24$ and $9/16$ of the replicates), so they are optimistic.
 \item[RQ2 --- memory.] \emph{Yes.} The LR statistic is far beyond any critical value (minimum $1380$ in S1, $344$ in S2), so the power is $100\%$ at $\alpha=0.7$. The $\chi^2_1$ calibration is \emph{not} valid: its size is $30\%$ (S1) and $8\%$ (S2); the parametric-bootstrap $95\%$ points are $6.94$ and $2.98$, and $\hat\alpha$ lies at the boundary under $H_0$ ($0.992$ on average).
@@ -218,7 +220,8 @@ We use $R=24$ (S1) and $16$ (S2) replicates, $B_0=40/24$ null datasets and $12$ 
 \item[RQ5 --- forecasts.] \emph{Yes against catalogue-based benchmarks, not yet at equal information.} The fitted model has Brier skill $+33\%$ (S1) and $+35\%$ (S2) over Poisson, against $+10.5\%$ for Weibull renewal, and AUC $0.94$ against $0.83$; with memory switched off it is worse than Poisson ($-38\%$, $-168\%$). Since the fractional model reads the stress while the benchmarks do not, this measures the value of observing stress together with the model structure.
 \end{description}
 
-\section{Discussion and limitations}
+\section{Discussion, limitations and conclusion}
+\subsection{Discussion and limitations}
 \begin{itemize}\setlength\itemsep{1pt}
 \item \textbf{Stress is observed directly.} In the simulations the noisy stress itself is measured yearly. In reality only catalogues and proxies (geodetic strain etc.) are available, so the recovery results are an \emph{upper bound} on identifiability and S2 is the closer analogue. Real data require a proxy observation model.
 \item \textbf{Optimiser failures.} $5/24$ (S1) and $7/16$ (S2) fits stalled below the likelihood of the truth; summaries keep valid fits only, with validity defined through the truth, which is optimistic and unusable on real data.
@@ -230,7 +233,7 @@ We use $R=24$ (S1) and $16$ (S2) replicates, $B_0=40/24$ null datasets and $12$ 
 \end{itemize}
 An improved protocol addressing the second, third and fourth points (multi-start optimiser with a convergence check that does not use the truth, an information-matched stress-regression benchmark, a bootstrap-calibrated coupling test, an automatically chosen neighbouring fault pair) is implemented in the accompanying code and will replace the numbers above.
 
-\section{Conclusion}
+\subsection{Conclusion}
 We formulated a fractional, impulsive, delayed model of two interacting faults with a stress-dependent hazard, a calibrated loading rate and a particle-filter likelihood, and evaluated estimation accuracy, a boundary-aware memory test, robustness and out-of-sample probabilistic forecasts in simulation. The next steps are an observation model based on real proxies, finer or event-driven delay handling, and application to a real catalogue.
 
 \paragraph{Reproducibility.} Python/numba code, scripts and notebooks: \url{https://github.com/yamenetoo/fractional-delayed-fault-model}. Seeds: $1000+r$ (alternative), $3000+r$ (null), $5000+r$ (forecast evaluation).
