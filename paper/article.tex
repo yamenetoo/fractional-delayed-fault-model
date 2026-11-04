@@ -218,127 +218,68 @@ For an independent dataset of the same length, at yearly forecast origins $t$ th
 %==============================================================
 \section{Results}\label{sec:results}
 \paragraph{Scope of the numerical study.}
-The results reported here come from a \emph{pilot run} of the protocol of Section~\ref{sec:stats}: $R=4$ replicates for each of S1 and S2, $B_0=8$ null datasets per scenario for the bootstrap, and $3$ replicates for the reference-time study. This is enough to check that the method works and to see orders of magnitude, but \emph{not} to quote precise bias, standard errors, test sizes or powers; every number below has a large Monte Carlo uncertainty. A larger run ($R=24/16$, $B_0=40/24$) is specified in the accompanying code.
+The results come from the full run of the protocol of Section~\ref{sec:stats}: $R=24$ replicates for S1 and $R=16$ for S2, $B_0=40$ and $B_0=24$ null datasets for the bootstrap of the memory test, $12$ datasets for the reference-time study, and $100$ particles throughout. Monte Carlo errors are still substantial for the tail quantities (bootstrap critical values, test sizes), and they are quoted with that in mind.
 
 \subsection{Parameter recovery}
-Table~\ref{tab:recovery} summarises the maximum-likelihood estimates over the \emph{valid} replicates. Under accurate stress readings (S1, 3 of 4 valid) $\alpha$, $\gamma$ and $c$ are recovered within a few per cent (relative RMSE $0.25\%$, $3.8\%$ and $2.1\%$), while $b$ is biased downwards ($\hat b\approx2.5$ for a true $3$; relative RMSE $16\%$). With noisy readings (S2) only 1 of 4 replicates passed the validity check: in the other three the optimiser stopped at a log-likelihood below that of the true parameters by $18$--$26$ units (Table~\ref{tab:alt}), i.e.\ the failure in S2 is mostly an \emph{optimisation} failure, not evidence about the information in the data. The single valid S2 replicate has estimates close to the truth for $\alpha$ and $c$ but, as in S1, $b$ is too small.
+Table~\ref{tab:recovery} summarises the maximum-likelihood estimates over the \emph{valid} replicates (those whose maximised log-likelihood is within two units of, or above, the value at the true parameters). In S1 (accurate readings) $19$ of $24$ replicates are valid; $\alpha$, $\gamma$ and $c$ are essentially unbiased (relative RMSE $0.8\%$, $4.2\%$ and $2.0\%$), whereas $b$ is biased downwards ($\bar{\hat b}=2.47$ for a true $3$; relative RMSE $18\%$). In S2 (noisy readings, $\sigma_y=1.5$) only $9$ of $16$ replicates are valid. For these, $\alpha$ is still recovered ($\bar{\hat\alpha}=0.700$, relative RMSE $2.0\%$), $\gamma$ and $b$ with larger error ($12\%$ and $14\%$) and the delay speed $c$ with a bias of $-0.56$ and relative RMSE $13\%$, i.e.\ the delay $\tau=d/c$ is the least well identified quantity under noise. The invalid replicates ($5/24$ and $7/16$) are optimisation failures, not information failures: the optimiser stopped at a point with lower likelihood than the truth. Restricting to valid replicates removes these failures, which makes the table optimistic; a better optimiser (multi-start or gradient-informed) is needed before the S2 numbers can be taken at face value.
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{llrrrrrr}
-\toprule
-$\sigma_y$ (valid $n$) & Parameter & Truth & Mean & Bias & SD & RMSE & Rel.\ RMSE (\%)\\
-\midrule
-0.3 (3) & $\alpha$ & 0.7 & 0.701 & $+0.001$ & 0.002 & 0.002 & 0.2\\
- & $\gamma$ & 0.08 & 0.077 & $-0.003$ & 0.001 & 0.003 & 3.8\\
- & $c$ & 10 & 9.860 & $-0.140$ & 0.185 & 0.206 & 2.1\\
- & $b$ & 3 & 2.517 & $-0.483$ & 0.072 & 0.486 & 16.2\\
-\midrule
-1.5 (1) & $\alpha$ & 0.7 & 0.698 & $-0.002$ & -- & 0.002 & 0.3\\
- & $\gamma$ & 0.08 & 0.074 & $-0.006$ & -- & 0.006 & 7.1\\
- & $c$ & 10 & 9.815 & $-0.185$ & -- & 0.185 & 1.8\\
- & $b$ & 3 & 2.329 & $-0.671$ & -- & 0.671 & 22.4\\
-\bottomrule
-\end{tabular}
-\caption{Recovery of $(\alpha,\gamma,c,b)$, pilot run, valid replicates only (no SD with one replicate).}\label{tab:recovery}
-\end{table}
-
-\begin{table}[t]
-\centering\small
-\begin{tabular}{lrrrrrrr}
-\toprule
-$\sigma_y$ & rep & $\hat\ell_{\rm full}$ & $\ell_{\rm true}$ & valid & $\hat\alpha$ & $\hat\gamma$ & $\hat\tau=d/\hat c$ (yr)\\
-\midrule
-0.3 & 0 & $-293.4$ & $-296.2$ & yes & 0.702 & 0.077 & 3.00\\
-0.3 & 1 & $-328.0$ & $-323.9$ & no  & 0.692 & 0.086 & 3.05\\
-0.3 & 2 & $-277.8$ & $-277.4$ & yes & 0.699 & 0.079 & 3.02\\
-0.3 & 3 & $-295.4$ & $-301.8$ & yes & 0.702 & 0.076 & 3.11\\
-1.5 & 0 & $-1546.7$ & $-1520.7$ & no  & 0.744 & 0.045 & 5.98\\
-1.5 & 1 & $-1572.5$ & $-1554.7$ & no  & 0.715 & 0.074 & 4.20\\
-1.5 & 2 & $-1513.6$ & $-1495.2$ & no  & 0.732 & 0.055 & 5.31\\
-1.5 & 3 & $-1515.8$ & $-1521.8$ & yes & 0.698 & 0.074 & 3.06\\
-\bottomrule
-\end{tabular}
-\caption{Individual pilot replicates. ``valid'' means $\hat\ell_{\rm full}\ge\ell_{\rm true}-2$. Delay $\hat\tau$ is computed with $d=30$; the true value is $3$ years (grid step $0.25$).}\label{tab:alt}
+\input{../stats/tabs/tab_recovery.tex}
+\caption{Recovery of $(\alpha,\gamma,c,b)$ over valid replicates ($19/24$ in S1, $9/16$ in S2). SD: standard deviation of the estimates; RMSE about the truth.}\label{tab:recovery}
 \end{table}
 \begin{figure}[t]
 \centering\maybefig{recovery_box.pdf}{0.95}{}
-\caption{Box plots of $\hat\vartheta/\vartheta_0$ for the two scenarios (pilot run; dots: replicates; dashed: truth $=1$).}\label{fig:recovery}
+\caption{Box plots of $\hat\vartheta/\vartheta_0$ for the two scenarios (dots: replicates; dashed: truth $=1$).}\label{fig:recovery}
 \end{figure}
 
 \subsection{Memory and interaction tests}
-Under the alternative the likelihood-ratio statistic for memory is very large ($1489$--$1880$ in S1, $397$--$687$ in S2), and for coupling $870$--$1004$ (S1) and $48$--$167$ (S2): with $\alpha=0.7$ and $\gamma=0.08$ both features are far from the null in this simulated setting, so the power is $100\%$ for both tests (Table~\ref{tab:tests}). Under $H_0:\alpha=1$ the estimate $\hat\alpha$ sits at $0.99$ in every null dataset (never below $0.98$), i.e.\ against the boundary, as expected, and $\Lambda$ is $0$ in $4$ of $8$ (S1) null fits. In S1, $2$ of $8$ null statistics exceed the nominal $\chi^2_1$ cut-off $2.706$ (empirical size $25\%$ on $8$ draws, which cannot be distinguished from $5\%$ with so few draws); the bootstrap $95\%$ points ($4.74$ and $1.67$) are computed from $8$ values and should not be used for inference until the larger run is done.
+Under the alternative the likelihood-ratio statistic for $H_0:\alpha=1$ is very large: its minimum over the replicates is $1380$ in S1 (median $1637$) and $344$ in S2 (median $544$), so the power is $100\%$ in both scenarios for the memory test and for the coupling test (Table~\ref{tab:tests}). This is expected with $\alpha=0.7$ and $\gamma=0.08$ and a record length of $400$ years; it says nothing about weaker effects.
+
+Under $H_0$ the estimate sits at the boundary, as expected: the mean of $\hat\alpha$ is $0.992$ in both scenarios and it is never below $0.98$. The naive $\chi^2_1$ reference (cut-off $2.706$) is not reliable: its empirical size is $30\%$ in S1 ($12/40$) and $8.3\%$ in S2 ($2/24$). The parametric-bootstrap $95\%$ points are $6.94$ (S1) and $2.98$ (S2). The S1 value is large because the null LR statistic is occasionally inflated by optimiser/particle noise (one-sided boundary plus Monte Carlo likelihood noise); with $B_0=40$ the critical values themselves are uncertain, and with the observed statistics $\ge344$ the conclusion does not depend on them. Comparing with the $\tfrac12\chi^2_0+\tfrac12\chi^2_1$ reference (cut-off $2.706$) would likewise be inadequate in S1.
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{lrrrrrr}
-\toprule
-$\sigma_y$ & $B_0$ & $\hat\alpha<0.98$ under $H_0$ (\%) & Size, $\chi^2$ ref.\ (\%) & Crit.\ 95\% (boot.) & Power, memory (\%) & Power, coupling (\%)\\
-\midrule
-0.3 & 8 & 0 & 25.0 & 4.74 & 100 & 100\\
-1.5 & 8 & 0 & 0.0 & 1.67 & 100 & 100\\
-\bottomrule
-\end{tabular}
-\caption{Pilot results for the tests of memory ($H_0:\alpha=1$) and coupling ($H_0:\gamma=0$). Power is over the valid alternative replicates ($3$ in S1, $1$ in S2).}\label{tab:tests}
+\input{../stats/tabs/tab_tests.tex}
+\caption{Tests of memory ($H_0:\alpha=1$) and coupling ($H_0:\gamma=0$). ``Type I'': rejection rate of the $\chi^2$ reference under the null datasets; critical value: bootstrap $95\%$ point. Power over the valid alternative replicates ($19$ in S1, $9$ in S2).}\label{tab:tests}
 \end{table}
 \begin{figure}[t]
 \centering\maybefig{lr_tests.pdf}{0.95}{}
-\caption{Left: empirical null distribution of the LR statistic for $H_0:\alpha=1$ against $\tfrac12\chi^2_0+\tfrac12\chi^2_1$. Right: LR statistics under the alternative $\alpha=0.7$ (pilot run).}\label{fig:lr}
+\caption{Left: empirical null distribution of the LR statistic for $H_0:\alpha=1$ against $\tfrac12\chi^2_0+\tfrac12\chi^2_1$. Right: LR statistics under the alternative $\alpha=0.7$.}\label{fig:lr}
 \end{figure}
 \begin{figure}[t]
 \centering\maybefig{profile_alpha.pdf}{0.6}{}
 \caption{Profile deviance of $\alpha$ for the first replicates of S1; dashed: true $\alpha=0.7$; dotted: $3.84$. Particle-filter noise is comparable to the threshold, hence no formal intervals are drawn.}\label{fig:profile}
 \end{figure}
+The coupling test ($H_0:\gamma=0$) was not calibrated by a bootstrap, because under $\gamma=0$ the speed $c$ is unidentified (Davies problem); only its power is reported.
 
 \subsection{Robustness to the reference time}\label{sec:robres}
-Table~\ref{tab:misspec} shows the effect of fitting with $\Tb$ multiplied by $0.8$ or $1.25$ on the three S1 datasets. The maximised log-likelihood drops by $112$ units on average for $\times0.8$ and by $140$ for $\times1.25$ (individual losses from $44$ to $333$), far more than Monte Carlo noise, so a wrong $\Tb$ is detectable in the likelihood. Parameters move in a systematic way: $\hat\alpha$ is biased upwards when $\Tb$ is too large ($\times1.25$: mean $0.78$ against $0.70$), $\hat\gamma$ is underestimated in both cases (mean $0.053$ and $0.063$ against $0.08$), and $\hat b$ is too small. The estimate of $c$ is unaffected except in one replicate ($\hat c=5.3$ at $\times1.25$). Hence conclusions about memory ($\alpha<1$) are robust to a $\pm20$--$25\%$ error in $\Tb$ in this setting, but the \emph{size} of $\alpha$ and of the coupling are not.
+Table~\ref{tab:misspec} shows the effect of fitting with $\Tb$ multiplied by $0.8$ or $1.25$ on $12$ S1 datasets. The maximised log-likelihood drops on average by $134$ units for $\times0.8$ (median $95$, range $51$--$512$) and by $91$ for $\times1.25$ (median $47$, range $26$--$333$), far more than Monte Carlo noise, so a wrong $\Tb$ is detectable in the likelihood. Parameters move systematically: $\hat\alpha$ is biased upwards when $\Tb$ is too large ($\times1.25$: mean $0.77$ against $0.70$) and slightly downwards when it is too small ($0.69$), $\hat\gamma$ is underestimated in both cases (means $0.055$ and $0.067$ against $0.08$), and $\hat b$ is far too small ($2.26$ and $2.15$). The speed $c$ is mostly unaffected, but in $3$ of the $24$ fits it falls below $8$ (down to about $5$). Hence the qualitative conclusion $\alpha<1$ is robust to a $-20\%/+25\%$ error in $\Tb$ in this setting, but the \emph{size} of $\alpha$ and of the coupling are not.
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{lrrrrr}
-\toprule
-$\Tb$ scale & mean $\hat\alpha$ & mean $\hat\gamma$ & mean $\hat c$ & mean $\hat b$ & mean log-lik.\ loss\\
-\midrule
-0.8  & 0.690 & 0.053 & 10.13 & 2.04 & 112.4\\
-1.25 & 0.780 & 0.063 & 8.41  & 2.22 & 140.2\\
-(truth) & 0.700 & 0.080 & 10 & 3 & 0\\
-\bottomrule
-\end{tabular}
-\caption{Fits with a wrong reference recurrence time (S1, 3 replicates). Loss is relative to the fit with the correct $\Tb$.}\label{tab:misspec}
+\input{../stats/tabs/tab_misspec.tex}
+\caption{Fits with a wrong reference recurrence time (S1, $12$ datasets; truth: $\alpha=0.7$, $\gamma=0.08$, $c=10$, $b=3$). Loss is the drop of the maximised log-likelihood relative to the fit with the correct $\Tb$.}\label{tab:misspec}
 \end{table}
 
 \subsection{Forecast evaluation}
-Table~\ref{tab:forecast} gives 5-year window forecasts on independent datasets. In S1 the fitted fractional model has the lowest Brier score ($0.045$ against $0.072$ for Poisson and $0.063$ for Weibull renewal) and the highest AUC ($0.96$ against $0.84$), a Brier skill of $+37.6\%$ relative to Poisson. The model with memory switched off is \emph{worse} than Poisson on Brier ($-7.2\%$), although its AUC ($0.90$) exceeds that of Weibull renewal; in S2 it is much worse ($-188.6\%$), which reflects poor calibration of that refit and, given the optimisation problems of S2, should not be over-interpreted. Note that Poisson and Weibull baselines are identical in the two scenarios because they use only the (same) catalogue.
+Table~\ref{tab:forecast} gives 5-year window forecasts on independent datasets ($18{,}528$ forecast--fault pairs with $1440$ events in S1; $12{,}352$ with $960$ in S2). The fitted fractional model has the lowest Brier score in both scenarios ($0.048$ and $0.046$, against $0.072$ for Poisson and $0.064$ for Weibull renewal) and the highest AUC ($0.94$ in both, against $0.83$ for Weibull), a Brier skill of $+33\%$ (S1) and $+35\%$ (S2) relative to Poisson. The refit with memory switched off ($\alpha=1$) is \emph{worse} than Poisson on Brier ($-38\%$ in S1, $-168\%$ in S2), reflecting poor calibration of a misspecified model, though its AUC ($0.86$, $0.84$) still exceeds Weibull's. The Poisson and Weibull baselines are the same in the two scenarios up to Monte Carlo error, because they use only the catalogue.
 
-\emph{Important caveat.} The fractional-model forecasts use the yearly stress readings, whereas Poisson and Weibull use only the catalogue. The comparison therefore shows what is gained if stress is observed, not that the model beats catalogue-based methods on equal information. A fair benchmark with the same information (for instance a hazard regression on the current stress reading) is still needed. In S2 the forecast table pools all four replicates, including the three whose fits were flagged invalid.
+\emph{Important caveat.} The fractional-model forecasts use the yearly stress readings, whereas Poisson and Weibull use only the catalogue. The comparison therefore shows what is gained if stress is observed, not that the model beats catalogue-based methods on equal information. A fair benchmark with the same information (for instance a hazard regression on the current stress reading) is still needed. The forecast tables pool all replicates, including those flagged invalid ($5/24$ and $7/16$).
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{llrrrr}
-\toprule
-$\sigma_y$ & Method & Brier & Log score & AUC & Brier skill vs.\ Poisson (\%)\\
-\midrule
-0.3 & fractional (fitted) & 0.0448 & 0.1490 & 0.959 & 37.6\\
- & no memory ($\alpha=1$) & 0.0769 & 0.2383 & 0.903 & $-7.2$\\
- & Weibull renewal & 0.0633 & 0.2174 & 0.837 & 11.8\\
- & Poisson & 0.0717 & 0.2736 & 0.500 & 0.0\\
-\midrule
-1.5 & fractional (fitted) & 0.0466 & 0.1492 & 0.946 & 35.1\\
- & no memory ($\alpha=1$) & 0.2071 & 0.5836 & 0.849 & $-188.6$\\
- & Weibull renewal & 0.0633 & 0.2174 & 0.837 & 11.8\\
- & Poisson & 0.0717 & 0.2736 & 0.500 & 0.0\\
-\bottomrule
-\end{tabular}
-\caption{Out-of-sample 5-year window forecasts (pilot run, $4$ replicates per scenario). The fractional model uses the stress readings; the baselines use only the catalogue.}\label{tab:forecast}
+\input{../stats/tabs/tab_forecast.tex}
+\caption{Out-of-sample 5-year window forecasts (24 replicates in S1, 16 in S2). The fractional model uses the stress readings; the baselines use only the catalogue.}\label{tab:forecast}
 \end{table}
 \begin{figure}[t]
 \centering\maybefig{forecast_eval.pdf}{1.0}{}
-\caption{Reliability diagram (left), ROC curves (centre) and Brier skill against the Poisson benchmark (right; mean $\pm$ SE over replicates), pilot run.}\label{fig:forecast}
+\caption{Reliability diagram (left), ROC curves (centre) and Brier skill against the Poisson benchmark (right; mean $\pm$ SE over replicates).}\label{fig:forecast}
 \end{figure}
 
 \section{Discussion and limitations}
 \begin{itemize}
-\item \textbf{Pilot-size study.} The numbers in Section~\ref{sec:results} come from $4$ replicates per scenario and $8$ null datasets; they show feasibility, not precise operating characteristics. In S2 three of four fits failed the validity check (optimisation), so the performance under noisy readings is not established.\item \textbf{Forecast comparison is not information-matched.} The fractional model uses the stress readings, the benchmarks do not.\item \textbf{Stress is observed directly.} In the simulations the (noisy) stress itself is measured every year. In reality stress is not observed; only catalogues, geodetic strain and similar proxies are. The recovery results are therefore an \emph{upper bound} on identifiability, and S2 (large $\sigma_y$) is the closer analogue of practice. Applying the method to real data requires a proxy observation model.
+\item \textbf{Moderate study size and optimiser failures.} The study uses $24$ and $16$ replicates and $40$ and $24$ null datasets. $5/24$ (S1) and $7/16$ (S2) fits stalled below the likelihood of the true parameters and are excluded from the recovery and power summaries; the S2 recovery is therefore conditional on a successful optimisation. Bootstrap critical values rest on few draws, and the naive $\chi^2$ test has size $30\%$ in S1.\item \textbf{Forecast comparison is not information-matched.} The fractional model uses the stress readings, the benchmarks do not.\item \textbf{Stress is observed directly.} In the simulations the (noisy) stress itself is measured every year. In reality stress is not observed; only catalogues, geodetic strain and similar proxies are. The recovery results are therefore an \emph{upper bound} on identifiability, and S2 (large $\sigma_y$) is the closer analogue of practice. Applying the method to real data requires a proxy observation model.
 \item \textbf{Delay resolution.} $\tau$ is identified only to the discretisation step; the likelihood is piecewise constant in $c$.
 \item \textbf{Monte Carlo noise.} The particle-filter log-likelihood has noise comparable to usual deviance thresholds; hence the use of parametric bootstrap for the memory test, and no claim about coverage of profile intervals.
 \item \textbf{Boundary and nuisance-parameter problems.} Both $H_0:\alpha=1$ and $H_0:\gamma=0$ violate regularity conditions; only the first is bootstrap-calibrated here.
