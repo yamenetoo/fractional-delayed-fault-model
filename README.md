@@ -166,7 +166,7 @@ stress framework (Chishtie, 2026, EGUsphere preprint, no delay / inference / for
 | `stats/export_excel.py` | all results in `results.xlsx` |
 | `stats/run_all.py` | runs the whole study (S1, S2, bootstrap null, robustness) in a parallel process pool, resumable; can be **shared between several machines** (e.g. desktop + Colab) through a common Drive folder (`--cores 2,8 --me 0/1`) |
 | `stats/schematic.tex` | TikZ model schematic |
-| `notebooks/` | Colab (Google Drive) and laptop (Jupyter) notebooks that write these files and run everything |
+| `notebooks/colab_run_and_save_to_drive.ipynb` | Colab notebook: clones this repo, runs the whole study in parallel (alone or shared with a desktop) and saves all results in Google Drive |
 | `paper/article.tex`, `paper/tikz_problem.tex` | the article (needs `stats/figs`, `stats/tabs`, `stats/schematic.tex`) |
 | `assets/` (logo, light and dark), `docs/img/` | logo and figures used in this README |
 
@@ -184,7 +184,7 @@ python fault_map.py                                                       # need
 cd ../paper && pdflatex article.tex && pdflatex article.tex
 ```
 
-Fast way, all cores: `python run_all.py --procs 4 --out out`. Or open a notebook from `notebooks/` (`fault_study_colab_github.ipynb` clones this repository in Colab and runs everything in parallel) (set `MODE='QUICK'` for a few-minute check, `MODE='FULL'` for the full study, about 1.5 h on 2 CPU cores).
+Fast way, all cores: `python run_all.py --procs 4 --out out`. Or open `notebooks/colab_run_and_save_to_drive.ipynb` in Colab ([open](https://colab.research.google.com/github/yamenetoo/fractional-delayed-fault-model/blob/main/notebooks/colab_run_and_save_to_drive.ipynb); works directly only if the repository is public) (set `MODE='QUICK'` for a few-minute check, `MODE='FULL'` for the full study, about 1.5 h on 2 CPU cores).
 Results are written next to the code in `out/` (raw, resumable), `figs/`, `tabs/`, `results.xlsx`.
 
 ## 8. How to cite
