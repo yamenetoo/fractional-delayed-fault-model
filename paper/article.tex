@@ -56,7 +56,7 @@ Fractional calculus gives a compact way to encode memory \citep{Podlubny1999,Die
 
 \begin{figure}[t]
 \centering\maybefig{fault_map.pdf}{0.85}{}
-\caption{A real example of the setting: two neighbouring active faults (blue and orange) with the closest-approach distance $d$ used in $\tau=d/c$. Fault traces from the GEM Global Active Faults Database \citep{StyronPagani2020}; map drawn with \texttt{cartopy}. The simulation study uses synthetic data; this map only illustrates the geometry and the order of magnitude of $d$.}\label{fig:map}
+\caption{A real example of the setting: two neighbouring active faults (blue and orange) with the closest-approach distance $d$ used in $\tau=d/c$. Fault traces from the GEM Global Active Faults Database \citep{StyronPagani2020}; map drawn with \texttt{cartopy}. The two traces are automatically chosen as distinct fault traces (about $100$ km long each) whose closest approach is about $30$\,km, the value of $d$ used in the simulations; the simulation study itself uses synthetic data, and the map only illustrates the geometry. Neighbouring in space does not by itself establish mechanical interaction.}\label{fig:map}
 \end{figure}
 
 \paragraph{Contributions.}
@@ -67,7 +67,7 @@ Fractional calculus gives a compact way to encode memory \citep{Podlubny1999,Die
 We organise related work by the modelling feature it shares with the present model, and then summarise the comparison in Table~\ref{tab:related}.
 
 \paragraph{Renewal and stress-release models.}
-Classical recurrence models treat the inter-event time of a fault as an i.i.d.\ draw from a Weibull, lognormal or Brownian-passage-time law \citep{Matthews2002}; they have no mechanism for interaction and use elapsed time only. The \emph{stress release model} of \citet{VereJones1978} (see also \citealp{ZhengVereJones1991}) is closer in spirit: stress increases linearly, earthquakes occur at a stress-dependent hazard $\lambda=\exp(a+b\,x)$ and release stress. The \emph{linked} stress-release model couples several regions through stress transfer \citep{Liu1998,Bebbington2003} and has a well-developed likelihood theory. Our hazard \eqref{eq:hazard} has the same exponential-in-stress form, so the present model can be seen as a stress-release model in which (i) loading is not linear but has fractional memory and saturation, and (ii) coupling is split into an instantaneous part and a \emph{delayed} pulse. In the linked model coupling is instantaneous and memoryless, and stress is a deterministic function of the catalogue (no latent state, no particle filter).
+Classical recurrence models treat the inter-event time of a fault as an i.i.d.\ draw from a Weibull, lognormal or Brownian-passage-time law \citep{Matthews2002}; they have no mechanism for interaction and use elapsed time only. The \emph{stress release model} of \citet{VereJones1978} (see also \citealp{ZhengVereJones1991}) is closer in spirit: stress increases linearly, earthquakes occur at a stress-dependent hazard $\lambda=\exp(a+b\,x)$ and release stress. The \emph{linked} stress-release model couples several regions through stress transfer \citep{LuVereJones2000,Bebbington2003} and has a well-developed likelihood theory. Our hazard \eqref{eq:hazard} has the same exponential-in-stress form, so the present model can be seen as a stress-release model in which (i) loading is not linear but has fractional memory and saturation, and (ii) coupling is split into an instantaneous part and a \emph{delayed} pulse. In the linked model coupling is instantaneous and memoryless, and stress is a deterministic function of the catalogue (no latent state, no particle filter).
 
 \paragraph{Self-exciting point processes.}
 The Hawkes process and ETAS \citep{Hawkes1971,Ogata1988} are the standard operational forecasting tools. They model clustering (aftershocks) through a power-law triggering kernel; memory enters as event-to-event triggering, not as accumulated tectonic stress, and they say little about the quasi-periodic behaviour of large characteristic earthquakes. Our model targets the opposite regime (large, recurrent events on a few faults), and ETAS-type clustering is not included; the two are complementary.
@@ -87,7 +87,7 @@ Approach & Memory & Interaction & Delay & Latent stress & Likelihood inference &
 \midrule
 Renewal (Weibull/BPT) & -- & -- & -- & -- & yes & yes\\
 Stress-release \citep{VereJones1978} & -- & -- & -- & deterministic & yes & yes\\
-Linked stress-release \citep{Liu1998,Bebbington2003} & -- & instantaneous & -- & deterministic & yes & yes\\
+Linked stress-release \citep{LuVereJones2000,Bebbington2003} & -- & instantaneous & -- & deterministic & yes & yes\\
 ETAS/Hawkes \citep{Ogata1988} & power-law triggering & yes & -- & -- & yes & yes\\
 Coulomb/rate-state \citep{Stein1999,Dieterich1994} & friction only & physical & -- & physical & rarely & via rates\\
 Fractional $N$-body \citep{Chishtie2026} & fractional & yes & -- & deterministic & -- & --\\
@@ -174,12 +174,12 @@ which turns the Volterra equation \eqref{eq:volterra} into a Markov system with 
 \caption{Fractional kernel and its sum-of-exponentials approximation for $\alpha=0.5,0.7,0.9$ (left) and pointwise relative error (right).}\label{fig:soe}
 \end{figure}
 
-\subsection{Likelihood and estimation}
+\subsection{Likelihood and estimation}\label{sec:inference}
 \begin{figure}[t]
 \centering\resizebox{\textwidth}{!}{\figPipeline}
 \caption{Inference and validation pipeline.}\label{fig:pipeline}
 \end{figure}
-With the augmented state Markov, the likelihood of the yearly observations and the rupture times is estimated by a bootstrap particle filter \citep{Gordon1993,DoucetJohansen2011} with systematic resampling when the effective sample size drops below $P/2$, $P=100$ particles, and \emph{common random numbers} across parameter values so that the estimated log-likelihood surface is smooth enough to optimise. The parameter vector $(\alpha,\gamma,c,b)$ is estimated on the scale $(\mathrm{logit}\,\alpha,\log\gamma,\log c,\log b)$ by Nelder--Mead \citep{NelderMead1965} from several starting points, with restarts. The fixed quantities are $\beta=0.05$, $\theta=10$, $\rho=0.2$, $\Tb=(40,45)$, $d=30$, $C=3$, $\sigma_x=0.1$, $\lambda_0=1$.
+With the augmented state Markov, the likelihood of the yearly observations and the rupture times is estimated by a bootstrap particle filter \citep{Gordon1993,DoucetJohansen2011} with systematic resampling when the effective sample size drops below $P/2$, $P=100$ particles, and \emph{common random numbers} across parameter values so that the estimated log-likelihood surface is smooth enough to optimise. The parameter vector $(\alpha,\gamma,c,b)$ is estimated on the scale $(\mathrm{logit}\,\alpha,\log\gamma,\log c,\log b)$ by Nelder--Mead \citep{NelderMead1965}. To limit stalling in flat regions of the Monte Carlo likelihood the search uses four generic starting points together with starting points taken from the restricted fits ($\alpha=1$ and $\gamma=0$, which are nested in the full model), restarts until the improvement is below $0.5$, and a final polishing stage that restarts from the two best points with a new, larger simplex. The fixed quantities are $\beta=0.05$, $\theta=10$, $\rho=0.2$, $\Tb=(40,45)$, $d=30$, $C=3$, $\sigma_x=0.1$, $\lambda_0=1$.
 
 \paragraph{Likelihood shape.}
 Figure~\ref{fig:slices} shows one-dimensional slices of the estimated log-likelihood around the truth. $\alpha$, $\gamma$ and $b$ are sharply identified. The delay is identified \emph{only up to the time grid}: since pulses are applied at grid points, the likelihood is piecewise constant in $c$, and $\tau=d/c$ can be recovered to within the step $h$ at best. This is a property of the discretisation and is reported as such rather than hidden.
@@ -198,13 +198,13 @@ For each replicate $r=1,\dots,R$ the MLE $\hat\vartheta^{(r)}$ is computed and w
 \[
 \mathrm{bias}=\overline{\hat\vartheta}-\vartheta_0,\qquad \mathrm{SD}=\Big(\tfrac{1}{R-1}\sum_r(\hat\vartheta^{(r)}-\overline{\hat\vartheta})^2\Big)^{1/2},\qquad \mathrm{RMSE}=\Big(\tfrac1R\sum_r(\hat\vartheta^{(r)}-\vartheta_0)^2\Big)^{1/2},
 \]
-and the relative RMSE $=100\,\mathrm{RMSE}/\vartheta_0$. A replicate is flagged \emph{valid} if the maximised particle-filter log-likelihood is at least that at the true parameters minus two units, i.e.\ the optimiser has not stalled in a poor local optimum; only valid replicates enter the table, and the number of invalid ones is reported.
+and the relative RMSE $=100\,\mathrm{RMSE}/\vartheta_0$. \emph{All} replicates enter the table; none is discarded. Optimiser failures are handled in two ways. First, the optimiser is multi-start with polishing (Section~\ref{sec:inference}). Second, a convergence check that does \emph{not} use the truth is applied: the full model contains the restricted models $\alpha=1$ and $\gamma=0$, so its maximised log-likelihood cannot be lower than theirs (up to $0.5$); if it is, the fit is restarted from the restricted solutions. As a diagnostic only, we also report how many fits remain more than two units below the log-likelihood at the true parameters (which uses the truth and therefore cannot be used to filter), and the recovery summary restricted to the other fits.
 
 \subsection{Is there memory? $H_0:\alpha=1$}
 The null $\alpha=1$ is on the boundary of $(0,1]$. The likelihood-ratio statistic $\Lambda=2\{\ell(\hat\vartheta)-\ell(\hat\vartheta_{H_0})\}$ then does not have the $\chi^2_1$ limit; asymptotically one expects the mixture $\tfrac12\chi^2_0+\tfrac12\chi^2_1$ \citep{Chernoff1954,SelfLiang1987}, whose 95\% point is $2.71$. With a Monte Carlo likelihood, noise of order one log-likelihood unit and finite $T$, asymptotics are not trusted. We therefore calibrate the test by \emph{parametric bootstrap}: $B_0$ datasets are generated under $\alpha=1$ (with the other parameters at their truth), the full and restricted fits are computed on each, and the empirical 95\% quantile of $\Lambda$ is the critical value. We report the empirical size when using the $\chi^2$ reference, the bootstrap critical value, and the power at the true $\alpha=0.7$.
 
 \subsection{Is there interaction? $H_0:\gamma=0$}
-Here $\gamma=0$ is also a boundary, and with $\gamma=0$ the delay $c$ is not identified (nuisance parameter present only under the alternative), so standard asymptotics fail on two counts \citep{Davies1977}. We use the same LR statistic and report its power against the nominal $\chi^2_1$ reference as a rough guide only; a bootstrap calibration analogous to the previous subsection would be required for a formal test.
+Here $\gamma=0$ is also a boundary, and with $\gamma=0$ the delay $c$ is not identified (nuisance parameter present only under the alternative), so standard asymptotics fail on two counts \citep{Davies1977}. We use the LR statistic $\Lambda_\gamma=2\{\ell(\hat\vartheta)-\ell(\hat\vartheta_{\gamma=0})\}$ in which $c$ is maximised in the full fit, i.e.\ a supremum over the unidentified nuisance parameter, and calibrate it by \emph{parametric bootstrap} exactly as for memory: $G_0$ datasets are generated under $\gamma=0$ (other parameters at their truth), both models are fitted, and the empirical $95\%$ quantile of $\Lambda_\gamma$ is the critical value. We report the size with the $\chi^2_1$ reference, the bootstrap critical value and the power. (Both nulls are simulated at fixed values of the remaining parameters; a fully conditional bootstrap from the fitted null model would be preferable and costs one additional fit per bootstrap draw.)
 
 \subsection{Profile likelihood}
 For the first replicates the profile log-likelihood of $\alpha$ is computed on a grid $\{0.40,0.45,\dots,1.0\}$ by maximising over $(\gamma,c,b)$ at each $\alpha$. The profile deviance $2\{\hat\ell-\ell_p(\alpha)\}$ is plotted; since the Monte Carlo noise of the particle filter (standard deviation of order $1$--$2$ log-likelihood units) is of the same order as the usual deviance thresholds, profile-based confidence intervals and their coverage are \emph{not} claimed.
@@ -213,35 +213,74 @@ For the first replicates the profile log-likelihood of $\alpha$ is computed on a
 Data are generated with $\Tb=(40,45)$ but the model is fitted with $\Tb$ multiplied by $0.8$ and $1.25$ (script \texttt{misspec.py}). We report the shift in estimates and the drop in maximised log-likelihood relative to the fit with the correct $\Tb$.
 
 \subsection{Out-of-sample forecasting}
-For an independent dataset of the same length, at yearly forecast origins $t$ the fitted model (parameters from the training data) is used to estimate by particle filtering the probability that each fault ruptures in $(t,t+W]$, $W=5$ years. The outcome is the observed indicator. Benchmarks are (a) a homogeneous \emph{Poisson} model with rates estimated from the training catalogue, (b) a pooled \emph{Weibull renewal} model conditional on elapsed time since the last event, and (c) the fractional model with memory switched off ($\alpha=1$, refitted). Scores: the \emph{Brier score} $\overline{(p-y)^2}$, the \emph{log score} $-\overline{y\log p+(1-y)\log(1-p)}$ (probabilities clipped to $[10^{-3},1-10^{-3}]$), the \emph{AUC}, a \emph{reliability} diagram, and the \emph{Brier skill} $1-\mathrm{BS}/\mathrm{BS}_{\rm Poisson}$ averaged over replicates, with its standard error. Forecasts are probabilities; no single ``predicted date'' is issued.
+For an independent dataset of the same length, at yearly forecast origins $t$ the fitted model (parameters from the training data) is used to estimate by particle filtering the probability that each fault ruptures in $(t,t+W]$, $W=5$ years. The outcome is the observed indicator. Benchmarks are (a) a homogeneous \emph{Poisson} model with rates estimated from the training catalogue, (b) a pooled \emph{Weibull renewal} model conditional on elapsed time since the last event, (c) the fractional model with memory switched off ($\alpha=1$, refitted), and (d) an \emph{information-matched} \emph{stress-logit} benchmark: a logistic regression of the indicator ``rupture in $(t,t+W]$'' on exactly the observations the fractional model uses, namely the current yearly stress readings of the fault and of the other fault and $\log(1+\text{elapsed time})$, trained on the training record only (no knowledge of the model equations). Benchmarks (a) and (b) use the catalogue alone, so only the comparison with (d) isolates the value of the \emph{mechanistic structure} (memory, impulses, delay) from the value of observing stress. Scores: the \emph{Brier score} $\overline{(p-y)^2}$, the \emph{log score} $-\overline{y\log p+(1-y)\log(1-p)}$ (probabilities clipped to $[10^{-3},1-10^{-3}]$), the \emph{AUC}, a \emph{reliability} diagram, and the \emph{Brier skill} $1-\mathrm{BS}/\mathrm{BS}_{\rm Poisson}$ averaged over replicates, with its standard error. Forecasts are probabilities; no single ``predicted date'' is issued.
 
 %==============================================================
 \section{Results}\label{sec:results}
+\paragraph{Two runs.}
+Section~\ref{sec:resv1} reports the \emph{first} full run (protocol~v1), whose weaknesses are discussed there and which motivated the improvements of Section~\ref{sec:stats} (all replicates reported, convergence check without the truth, multi-start optimiser, information-matched benchmark, bootstrap-calibrated coupling test, neighbouring-fault map). Section~\ref{sec:resv2} is filled from the improved protocol~v2 (\texttt{*\_v2\_*} files); its tables and figures are generated by \texttt{analyze.py} and are produced by the accompanying code, not typed by hand.
+
+\subsection*{First run (protocol v1)}\label{sec:resv1}
 \paragraph{Scope of the numerical study.}
 The results come from the full run of the protocol of Section~\ref{sec:stats}: $R=24$ replicates for S1 and $R=16$ for S2, $B_0=40$ and $B_0=24$ null datasets for the bootstrap of the memory test, $12$ datasets for the reference-time study, and $100$ particles throughout. Monte Carlo errors are still substantial for the tail quantities (bootstrap critical values, test sizes), and they are quoted with that in mind.
 
-\subsection{Parameter recovery}
-Table~\ref{tab:recovery} summarises the maximum-likelihood estimates over the \emph{valid} replicates (those whose maximised log-likelihood is within two units of, or above, the value at the true parameters). In S1 (accurate readings) $19$ of $24$ replicates are valid; $\alpha$, $\gamma$ and $c$ are essentially unbiased (relative RMSE $0.8\%$, $4.2\%$ and $2.0\%$), whereas $b$ is biased downwards ($\bar{\hat b}=2.47$ for a true $3$; relative RMSE $18\%$). In S2 (noisy readings, $\sigma_y=1.5$) only $9$ of $16$ replicates are valid. For these, $\alpha$ is still recovered ($\bar{\hat\alpha}=0.700$, relative RMSE $2.0\%$), $\gamma$ and $b$ with larger error ($12\%$ and $14\%$) and the delay speed $c$ with a bias of $-0.56$ and relative RMSE $13\%$, i.e.\ the delay $\tau=d/c$ is the least well identified quantity under noise. The invalid replicates ($5/24$ and $7/16$) are optimisation failures, not information failures: the optimiser stopped at a point with lower likelihood than the truth. Restricting to valid replicates removes these failures, which makes the table optimistic; a better optimiser (multi-start or gradient-informed) is needed before the S2 numbers can be taken at face value.
+\subsubsection*{Parameter recovery (v1)}
+Table~\ref{tab:recovery} summarises the maximum-likelihood estimates over the \emph{valid} replicates (those whose maximised log-likelihood is within two units of, or above, the value at the true parameters). In S1 (accurate readings) $19$ of $24$ replicates are valid; $\alpha$, $\gamma$ and $c$ are essentially unbiased (relative RMSE $0.8\%$, $4.2\%$ and $2.0\%$), whereas $b$ is biased downwards ($\bar{\hat b}=2.47$ for a true $3$; relative RMSE $18\%$). In S2 (noisy readings, $\sigma_y=1.5$) only $9$ of $16$ replicates are valid. For these, $\alpha$ is still recovered ($\bar{\hat\alpha}=0.700$, relative RMSE $2.0\%$), $\gamma$ and $b$ with larger error ($12\%$ and $14\%$) and the delay speed $c$ with a bias of $-0.56$ and relative RMSE $13\%$, i.e.\ the delay $\tau=d/c$ is the least well identified quantity under noise. The invalid replicates ($5/24$ and $7/16$) are optimisation failures, not information failures: the optimiser stopped at a point with lower likelihood than the truth. The v1 table keeps only the valid replicates, and ``valid'' was defined using the true parameters; this filter is optimistic and cannot be used on real data, which is why protocol v2 reports all replicates and uses a convergence check that does not involve the truth.
 
 \begin{table}[t]
 \centering\small
-\input{../stats/tabs/tab_recovery.tex}
+\input{v1tabs/tab_recovery.tex}
 \caption{Recovery of $(\alpha,\gamma,c,b)$ over valid replicates ($19/24$ in S1, $9/16$ in S2). SD: standard deviation of the estimates; RMSE about the truth.}\label{tab:recovery}
 \end{table}
-\begin{figure}[t]
-\centering\maybefig{recovery_box.pdf}{0.95}{}
-\caption{Box plots of $\hat\vartheta/\vartheta_0$ for the two scenarios (dots: replicates; dashed: truth $=1$).}\label{fig:recovery}
-\end{figure}
 
-\subsection{Memory and interaction tests}
+\subsubsection*{Memory and interaction tests (v1)}
 Under the alternative the likelihood-ratio statistic for $H_0:\alpha=1$ is very large: its minimum over the replicates is $1380$ in S1 (median $1637$) and $344$ in S2 (median $544$), so the power is $100\%$ in both scenarios for the memory test and for the coupling test (Table~\ref{tab:tests}). This is expected with $\alpha=0.7$ and $\gamma=0.08$ and a record length of $400$ years; it says nothing about weaker effects.
 
 Under $H_0$ the estimate sits at the boundary, as expected: the mean of $\hat\alpha$ is $0.992$ in both scenarios and it is never below $0.98$. The naive $\chi^2_1$ reference (cut-off $2.706$) is not reliable: its empirical size is $30\%$ in S1 ($12/40$) and $8.3\%$ in S2 ($2/24$). The parametric-bootstrap $95\%$ points are $6.94$ (S1) and $2.98$ (S2). The S1 value is large because the null LR statistic is occasionally inflated by optimiser/particle noise (one-sided boundary plus Monte Carlo likelihood noise); with $B_0=40$ the critical values themselves are uncertain, and with the observed statistics $\ge344$ the conclusion does not depend on them. Comparing with the $\tfrac12\chi^2_0+\tfrac12\chi^2_1$ reference (cut-off $2.706$) would likewise be inadequate in S1.
 
 \begin{table}[t]
 \centering\small
-\input{../stats/tabs/tab_tests.tex}
+\input{v1tabs/tab_tests.tex}
 \caption{Tests of memory ($H_0:\alpha=1$) and coupling ($H_0:\gamma=0$). ``Type I'': rejection rate of the $\chi^2$ reference under the null datasets; critical value: bootstrap $95\%$ point. Power over the valid alternative replicates ($19$ in S1, $9$ in S2).}\label{tab:tests}
+\end{table}
+The coupling test ($H_0:\gamma=0$) was not calibrated by a bootstrap, because under $\gamma=0$ the speed $c$ is unidentified (Davies problem); only its power is reported.
+
+\subsubsection*{Robustness to the reference time}\label{sec:robres}
+Table~\ref{tab:misspec} shows the effect of fitting with $\Tb$ multiplied by $0.8$ or $1.25$ on $12$ S1 datasets. The maximised log-likelihood drops on average by $134$ units for $\times0.8$ (median $95$, range $51$--$512$) and by $91$ for $\times1.25$ (median $47$, range $26$--$333$), far more than Monte Carlo noise, so a wrong $\Tb$ is detectable in the likelihood. Parameters move systematically: $\hat\alpha$ is biased upwards when $\Tb$ is too large ($\times1.25$: mean $0.77$ against $0.70$) and slightly downwards when it is too small ($0.69$), $\hat\gamma$ is underestimated in both cases (means $0.055$ and $0.067$ against $0.08$), and $\hat b$ is far too small ($2.26$ and $2.15$). The speed $c$ is mostly unaffected, but in $3$ of the $24$ fits it falls below $8$ (down to about $5$). Hence the qualitative conclusion $\alpha<1$ is robust to a $-20\%/+25\%$ error in $\Tb$ in this setting, but the \emph{size} of $\alpha$ and of the coupling are not.
+
+\begin{table}[t]
+\centering\small
+\input{v1tabs/tab_misspec.tex}
+\caption{Fits with a wrong reference recurrence time (S1, $12$ datasets; truth: $\alpha=0.7$, $\gamma=0.08$, $c=10$, $b=3$). Loss is the drop of the maximised log-likelihood relative to the fit with the correct $\Tb$.}\label{tab:misspec}
+\end{table}
+
+\subsubsection*{Forecast evaluation (v1)}
+Table~\ref{tab:forecast} gives 5-year window forecasts on independent datasets ($18{,}528$ forecast--fault pairs with $1440$ events in S1; $12{,}352$ with $960$ in S2). The fitted fractional model has the lowest Brier score in both scenarios ($0.048$ and $0.046$, against $0.072$ for Poisson and $0.064$ for Weibull renewal) and the highest AUC ($0.94$ in both, against $0.83$ for Weibull), a Brier skill of $+33\%$ (S1) and $+35\%$ (S2) relative to Poisson. The refit with memory switched off ($\alpha=1$) is \emph{worse} than Poisson on Brier ($-38\%$ in S1, $-168\%$ in S2), reflecting poor calibration of a misspecified model, though its AUC ($0.86$, $0.84$) still exceeds Weibull's. The Poisson and Weibull baselines are the same in the two scenarios up to Monte Carlo error, because they use only the catalogue.
+
+\emph{Important caveat.} The fractional-model forecasts use the yearly stress readings, whereas Poisson and Weibull use only the catalogue. The comparison therefore shows what is gained if stress is observed, not that the model beats catalogue-based methods on equal information. A fair benchmark with the same information (for instance a hazard regression on the current stress reading) is still needed. The forecast tables pool all replicates, including those flagged invalid ($5/24$ and $7/16$).
+
+\begin{table}[t]
+\centering\small
+\input{v1tabs/tab_forecast.tex}
+\caption{Out-of-sample 5-year window forecasts (24 replicates in S1, 16 in S2). The fractional model uses the stress readings; the baselines use only the catalogue.}\label{tab:forecast}
+\end{table}
+
+\subsection*{Improved protocol (v2)}\label{sec:resv2}
+Tables~\ref{tab:recovery2}--\ref{tab:forecast2} and Figures~\ref{fig:recovery}--\ref{fig:forecast} are produced from the v2 run (24 replicates in S1, 16 in S2, $B_0=40/24$ null datasets for memory, $G_0=40/24$ for coupling, 12 datasets for the reference-time study) and replace the v1 numbers; the reading of each table is as follows. Table~\ref{tab:recovery2} gives bias, SD and RMSE of $(\hat\alpha,\hat\gamma,\hat c,\hat b)$ over \emph{all} replicates. Table~\ref{tab:tests2} gives, for memory and for coupling, the empirical size of the nominal $\chi^2_1$ reference, the parametric-bootstrap $95\%$ critical value and the power. Table~\ref{tab:forecast2} compares the fractional model with the Poisson, Weibull-renewal, no-memory and information-matched stress-logit benchmarks.
+
+\begin{table}[t]
+\centering\small
+\maybetab{tab_recovery.tex}
+\caption{Recovery of $(\alpha,\gamma,c,b)$ over all replicates (protocol v2).}\label{tab:recovery2}
+\end{table}
+\begin{figure}[t]
+\centering\maybefig{recovery_box.pdf}{0.95}{}
+\caption{Box plots of $\hat\vartheta/\vartheta_0$ for the two scenarios, all replicates (dots: replicates; dashed: truth $=1$).}\label{fig:recovery}
+\end{figure}
+\begin{table}[t]
+\centering\footnotesize
+\resizebox{\textwidth}{!}{\maybetab{tab_tests.tex}}
+\caption{Tests of memory ($H_0:\alpha=1$; $B_0$ null datasets) and of coupling ($H_0:\gamma=0$; $G_0$ null datasets). Type I: rejection rate of the $\chi^2_1$ cut-off $2.706$ on the null datasets; ``Crit.'': bootstrap $95\%$ point; power uses the bootstrap critical value.}\label{tab:tests2}
 \end{table}
 \begin{figure}[t]
 \centering\maybefig{lr_tests.pdf}{0.95}{}
@@ -251,26 +290,15 @@ Under $H_0$ the estimate sits at the boundary, as expected: the mean of $\hat\al
 \centering\maybefig{profile_alpha.pdf}{0.6}{}
 \caption{Profile deviance of $\alpha$ for the first replicates of S1; dashed: true $\alpha=0.7$; dotted: $3.84$. Particle-filter noise is comparable to the threshold, hence no formal intervals are drawn.}\label{fig:profile}
 \end{figure}
-The coupling test ($H_0:\gamma=0$) was not calibrated by a bootstrap, because under $\gamma=0$ the speed $c$ is unidentified (Davies problem); only its power is reported.
-
-\subsection{Robustness to the reference time}\label{sec:robres}
-Table~\ref{tab:misspec} shows the effect of fitting with $\Tb$ multiplied by $0.8$ or $1.25$ on $12$ S1 datasets. The maximised log-likelihood drops on average by $134$ units for $\times0.8$ (median $95$, range $51$--$512$) and by $91$ for $\times1.25$ (median $47$, range $26$--$333$), far more than Monte Carlo noise, so a wrong $\Tb$ is detectable in the likelihood. Parameters move systematically: $\hat\alpha$ is biased upwards when $\Tb$ is too large ($\times1.25$: mean $0.77$ against $0.70$) and slightly downwards when it is too small ($0.69$), $\hat\gamma$ is underestimated in both cases (means $0.055$ and $0.067$ against $0.08$), and $\hat b$ is far too small ($2.26$ and $2.15$). The speed $c$ is mostly unaffected, but in $3$ of the $24$ fits it falls below $8$ (down to about $5$). Hence the qualitative conclusion $\alpha<1$ is robust to a $-20\%/+25\%$ error in $\Tb$ in this setting, but the \emph{size} of $\alpha$ and of the coupling are not.
-
 \begin{table}[t]
 \centering\small
-\input{../stats/tabs/tab_misspec.tex}
-\caption{Fits with a wrong reference recurrence time (S1, $12$ datasets; truth: $\alpha=0.7$, $\gamma=0.08$, $c=10$, $b=3$). Loss is the drop of the maximised log-likelihood relative to the fit with the correct $\Tb$.}\label{tab:misspec}
+\maybetab{tab_misspec.tex}
+\caption{Fits with a wrong reference recurrence time ($\bar T$ scaled by $0.8$ or $1.25$; S1 datasets). Loss: drop of the maximised log-likelihood relative to the fit with the correct $\bar T$.}\label{tab:misspec2}
 \end{table}
-
-\subsection{Forecast evaluation}
-Table~\ref{tab:forecast} gives 5-year window forecasts on independent datasets ($18{,}528$ forecast--fault pairs with $1440$ events in S1; $12{,}352$ with $960$ in S2). The fitted fractional model has the lowest Brier score in both scenarios ($0.048$ and $0.046$, against $0.072$ for Poisson and $0.064$ for Weibull renewal) and the highest AUC ($0.94$ in both, against $0.83$ for Weibull), a Brier skill of $+33\%$ (S1) and $+35\%$ (S2) relative to Poisson. The refit with memory switched off ($\alpha=1$) is \emph{worse} than Poisson on Brier ($-38\%$ in S1, $-168\%$ in S2), reflecting poor calibration of a misspecified model, though its AUC ($0.86$, $0.84$) still exceeds Weibull's. The Poisson and Weibull baselines are the same in the two scenarios up to Monte Carlo error, because they use only the catalogue.
-
-\emph{Important caveat.} The fractional-model forecasts use the yearly stress readings, whereas Poisson and Weibull use only the catalogue. The comparison therefore shows what is gained if stress is observed, not that the model beats catalogue-based methods on equal information. A fair benchmark with the same information (for instance a hazard regression on the current stress reading) is still needed. The forecast tables pool all replicates, including those flagged invalid ($5/24$ and $7/16$).
-
 \begin{table}[t]
 \centering\small
-\input{../stats/tabs/tab_forecast.tex}
-\caption{Out-of-sample 5-year window forecasts (24 replicates in S1, 16 in S2). The fractional model uses the stress readings; the baselines use only the catalogue.}\label{tab:forecast}
+\maybetab{tab_forecast.tex}
+\caption{Out-of-sample 5-year window forecasts (protocol v2). The fractional model and the stress-logit benchmark use the stress readings; Poisson and Weibull use only the catalogue.}\label{tab:forecast2}
 \end{table}
 \begin{figure}[t]
 \centering\maybefig{forecast_eval.pdf}{1.0}{}
@@ -279,38 +307,37 @@ Table~\ref{tab:forecast} gives 5-year window forecasts on independent datasets (
 
 \section{Discussion and limitations}
 \begin{itemize}
-\item \textbf{Moderate study size and optimiser failures.} The study uses $24$ and $16$ replicates and $40$ and $24$ null datasets. $5/24$ (S1) and $7/16$ (S2) fits stalled below the likelihood of the true parameters and are excluded from the recovery and power summaries; the S2 recovery is therefore conditional on a successful optimisation. Bootstrap critical values rest on few draws, and the naive $\chi^2$ test has size $30\%$ in S1.\item \textbf{Forecast comparison is not information-matched.} The fractional model uses the stress readings, the benchmarks do not.\item \textbf{Stress is observed directly.} In the simulations the (noisy) stress itself is measured every year. In reality stress is not observed; only catalogues, geodetic strain and similar proxies are. The recovery results are therefore an \emph{upper bound} on identifiability, and S2 (large $\sigma_y$) is the closer analogue of practice. Applying the method to real data requires a proxy observation model.
+\item \textbf{Optimiser failures and study size.} In the first run (v1) $5/24$ (S1) and $7/16$ (S2) fits stalled below the likelihood of the true parameters, and the summaries kept only the valid fits, with validity defined through the truth. Protocol v2 reports all replicates and uses a convergence check that does not use the truth, but a Monte Carlo likelihood with $100$ particles can still stall, so the remaining failure rate is reported. The study uses $24$/$16$ replicates and $40$/$24$ null datasets per test; bootstrap critical values rest on few draws and are uncertain.
+\item \textbf{Forecast comparison.} The Poisson and Weibull benchmarks use the catalogue only, so they are not information-matched; the stress-logit benchmark uses the same readings as the fractional model but is a generic regression, not tuned (e.g.\ no interactions or non-linear terms). A better-tuned benchmark could narrow the gap.
+\item \textbf{Stress is observed directly.} In the simulations the (noisy) stress itself is measured every year. In reality stress is not observed; only catalogues, geodetic strain and similar proxies are. The recovery results are therefore an \emph{upper bound} on identifiability, and S2 (large $\sigma_y$) is the closer analogue of practice. Applying the method to real data requires a proxy observation model.
 \item \textbf{Delay resolution.} $\tau$ is identified only to the discretisation step; the likelihood is piecewise constant in $c$.
 \item \textbf{Monte Carlo noise.} The particle-filter log-likelihood has noise comparable to usual deviance thresholds; hence the use of parametric bootstrap for the memory test, and no claim about coverage of profile intervals.
-\item \textbf{Boundary and nuisance-parameter problems.} Both $H_0:\alpha=1$ and $H_0:\gamma=0$ violate regularity conditions; only the first is bootstrap-calibrated here.
+\item \textbf{Boundary and nuisance-parameter problems.} Both $H_0:\alpha=1$ and $H_0:\gamma=0$ violate regularity conditions, hence both are calibrated by parametric bootstrap. The bootstrap data are generated with the other parameters at their true values rather than at the fitted null values, so the calibration is exact only if those are known; this is a limitation of the cost-saving design.
 \item \textbf{Known structure.} The simulation fits the same model that generated the data; performance under a different true mechanism is only partially probed through the $\Tb$ misspecification study.
 \item \textbf{Two faults, scalar stress, common $\alpha$.} Real fault networks are larger and heterogeneous.
 \item \textbf{Forecasts are probabilities,} not predictions of a date; their value is judged by calibration and skill against benchmarks, not by hitting individual events.
-\item \textbf{Novelty and comparison.} The literature survey in Section~\ref{sec:related} is not exhaustive, entries for other work come from abstracts or posted preprints, and the Physica Scripta paper was not accessed in full. No comparison with ETAS or the linked stress-release model has been run, on simulated or real data.
+\item \textbf{Novelty and comparison.} The literature survey in Section~\ref{sec:related} is not exhaustive, entries for other work come from abstracts or posted preprints, and the Physica Scripta paper \citep{PhysScr2024} could not be accessed (publisher page not retrievable), so its authors and content are not stated. No comparison with ETAS or the linked stress-release model has been run, on simulated or real data.
 \end{itemize}
 
 \section{Conclusion}
-We formulated a fractional, impulsive, delayed model of two interacting faults with a stress-dependent hazard, a calibrated loading rate and a particle-filter likelihood, and specified a validation protocol covering estimation accuracy, boundary-aware hypothesis tests for memory and coupling, robustness, and out-of-sample probabilistic forecasting against standard benchmarks. The next steps are an observation model based on real proxies, a bootstrap-calibrated coupling test, finer or event-driven delay handling, and application to a real catalogue.
+We formulated a fractional, impulsive, delayed model of two interacting faults with a stress-dependent hazard, a calibrated loading rate and a particle-filter likelihood, and specified a validation protocol covering estimation accuracy, boundary-aware hypothesis tests for memory and coupling, robustness, and out-of-sample probabilistic forecasting against standard benchmarks. The next steps are an observation model based on real proxies, finer or event-driven delay handling, and application to a real catalogue.
 
 \section{Reproducibility}\label{sec:repro}
-Code (Python/numba) in the folder \texttt{stats/}: \texttt{fastpf.py} (particle filter and forecasts), \texttt{stats\_study.py} (replication, null bootstrap, forecasts), \texttt{misspec.py}, \texttt{fig\_basic.py} (Figures~\ref{fig:sim}--\ref{fig:slices}), \texttt{analyze.py} (tables and results figures). Typical run:
+Code (Python/numba) in the folder \texttt{stats/}: \texttt{fastpf.py} (particle filter and forecasts), \texttt{stats\_study.py} (replication, null bootstraps for memory and coupling, forecasts, stress-logit benchmark), \texttt{run\_all.py} (parallel driver), \texttt{misspec.py}, \texttt{fig\_basic.py} (Figures~\ref{fig:sim}--\ref{fig:slices}), \texttt{analyze.py} (tables and results figures). Typical run:
 \begin{verbatim}
-python3 stats_study.py --sigy 0.3 --R 24 --B0 40 --npart 100 --out out
-python3 stats_study.py --sigy 1.5 --R 16 --B0 24 --npart 100 --out out
-python3 misspec.py 12
-python3 fig_basic.py ; python3 analyze.py
-pdflatex article.tex ; pdflatex article.tex   # inside paper/
+python3 run_all.py --procs 8 --R1 24 --B1 40 --G1 40 --R2 16 --B2 24 --G2 24 --M 12 --out out
+python3 fault_map.py ; python3 fig_basic.py ; python3 analyze.py ; python3 export_excel.py
 \end{verbatim}
-Data seeds: $1000+r$ (alternative), $3000+r$ (null), $5000+r$ (forecast evaluation).
+Data seeds: $1000+r$ (alternative), $3000+r$ (memory null), $7000+r$ (coupling null), $5000+r$ (forecast evaluation).
 
 \begin{thebibliography}{99}\small
 \bibitem[Burridge and Knopoff(1967)]{BurridgeKnopoff1967} Burridge, R., Knopoff, L. (1967). Model and theoretical seismicity. \emph{Bull. Seismol. Soc. Am.} 57(3), 341--371.
 \bibitem[Bebbington and Harte(2003)]{Bebbington2003} Bebbington, M., Harte, D.S. (2003). The linked stress release model for spatio-temporal seismicity: formulations, procedures and applications. \emph{Geophys. J. Int.} 154, 925--946.
-\bibitem[Chishtie(2026)]{Chishtie2026} Chishtie, F.A. (2026). A hierarchical fractional $N$-body framework for Coulomb stress evolution in fault networks: exact analytical solutions and falsifiable seismicity scaling laws. EGUsphere preprint egusphere-2026-3498 (not peer reviewed).
-\bibitem[Dahm and Hainzl(2022)]{DahmHainzl2022} Dahm, T., Hainzl, S. (2022). A Coulomb stress response model for time-dependent earthquake forecasts. \emph{J. Geophys. Res. Solid Earth}. [bibliographic details to be verified]
+\bibitem[Chishtie(2026)]{Chishtie2026} Chishtie, F.A. (2026). A hierarchical fractional $N$-body framework for Coulomb stress evolution in fault networks: exact analytical solutions and falsifiable seismicity scaling laws. \emph{EGUsphere} 2026, 1--29 (preprint, not peer reviewed), doi:10.5194/egusphere-2026-3498.
+\bibitem[Dahm and Hainzl(2022)]{DahmHainzl2022} Dahm, T., Hainzl, S. (2022). A Coulomb stress response model for time-dependent earthquake forecasts. \emph{J. Geophys. Res. Solid Earth} 127(9), doi:10.1029/2022JB024443.
 \bibitem[Demir and Kocy{\i}{\u g}it(2025)]{DemirKocyigit2025} Demir, T., Kocy{\i}{\u g}it, A. (2025). Seismic wave propagation in viscoelastic media under Atangana--Baleanu fractional dynamics: model formulation and numerical simulations. arXiv:2512.13897.
 \bibitem[Dieterich(1994)]{Dieterich1994} Dieterich, J. (1994). A constitutive law for rate of earthquake production and its application to earthquake clustering. \emph{J. Geophys. Res.} 99(B2), 2601--2618.
-\bibitem[Liu et al.(1998)]{Liu1998} Liu, J., Chen, Y., Shi, Y., Vere-Jones, D. (1998). Coupled stress release model for time-dependent seismicity. [details to be verified; see also the linked stress release model for historical Japanese earthquakes].
+\bibitem[Lu and Vere-Jones(2000)]{LuVereJones2000} Lu, C., Vere-Jones, D. (2000). Application of linked stress release model to historical earthquake data: comparison between two kinds of tectonic seismicity. \emph{Pure Appl. Geophys.} 157, 2351--2364.
 \bibitem[Matthews et al.(2002)]{Matthews2002} Matthews, M.V., Ellsworth, W.L., Reasenberg, P.A. (2002). A Brownian model for recurrent earthquakes. \emph{Bull. Seismol. Soc. Am.} 92, 2233--2250.
 \bibitem[Anonymous(2024)]{PhysScr2024} \emph{Delayed and fractional-order dynamics of a model for earthquake induced by stress perturbations}. \emph{Physica Scripta} (2024), doi:10.1088/1402-4896/ad20ba. [authors and details to be added; full text not accessed]
 \bibitem[Stein(1999)]{Stein1999} Stein, R.S. (1999). The role of stress transfer in earthquake occurrence. \emph{Nature} 402, 605--609.
